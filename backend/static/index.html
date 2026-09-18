@@ -67,6 +67,41 @@
       background-color: var(--panel);
       border: 1px solid var(--border);
     }
+    .panel-card-glow {
+      position: relative;
+      background-color: var(--panel);
+      border: 1px solid rgba(212, 175, 55, 0.32);
+      box-shadow: 
+        0 0 0 1px rgba(212, 175, 55, 0.18),
+        0 0 22px -2px rgba(212, 175, 55, 0.35),
+        0 0 55px -4px rgba(234, 179, 8, 0.22),
+        0 0 90px 0px rgba(180, 130, 30, 0.14),
+        0 20px 45px -15px rgba(0, 0, 0, 0.85);
+    }
+    .panel-card-glow::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      background: radial-gradient(
+        ellipse at top, 
+        rgba(255, 215, 0, 0.35), 
+        rgba(212, 175, 55, 0.22) 40%, 
+        rgba(180, 130, 30, 0.08) 75%, 
+        transparent 100%
+      );
+      filter: blur(12px);
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+    html.light .panel-card-glow {
+      border: 1px solid var(--border);
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    }
+    html.light .panel-card-glow::before {
+      display: none;
+    }
     .panel-subtle {
       background-color: var(--panel-subtle);
       border: 1px solid var(--border);
@@ -278,7 +313,7 @@
     <section id="tab-checkin" class="space-y-8">
 
       <!-- Submission Panel -->
-      <div class="panel rounded-xl p-6 sm:p-7 space-y-6 shadow-sm">
+      <div class="panel panel-card-glow rounded-xl p-6 sm:p-7 space-y-6 shadow-sm">
         
         <div class="border-b pb-4 flex flex-wrap items-center justify-between gap-4" style="border-color: var(--border);">
           <div>
@@ -408,7 +443,7 @@
         </div>
 
         <!-- Stress Metrics Overview -->
-        <div class="panel rounded-xl p-6 space-y-5">
+        <div class="panel panel-card-glow rounded-xl p-6 space-y-5">
           
           <div class="flex flex-wrap items-center justify-between gap-4 border-b pb-4" style="border-color: var(--border);">
             <div>
@@ -501,7 +536,7 @@
         </div>
 
         <!-- Breathing Reset Protocol -->
-        <div class="panel rounded-xl p-5 space-y-4">
+        <div class="panel panel-card-glow rounded-xl p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h4 class="text-sm font-semibold">Box Breathing Reset (4-4-4-4)</h4>
@@ -537,7 +572,7 @@
     <!-- TAB 2: COUNSELOR TRIAGE HUB                                   -->
     <!-- ============================================================= -->
     <section id="tab-counselor" class="hidden space-y-6">
-      <div class="panel p-5 rounded-xl flex flex-wrap items-center justify-between gap-4">
+      <div class="panel panel-card-glow p-5 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
           <h2 class="text-base font-semibold">Counselor Review Queue</h2>
           <p class="text-xs opacity-70 mt-0.5">High-priority alerts where automated analysis flagged urgent distress.</p>
@@ -875,7 +910,7 @@
       } else {
         problems.forEach((p, idx) => {
           const card = document.createElement('div');
-          card.className = 'panel p-5 rounded-xl space-y-3.5';
+          card.className = 'panel panel-card-glow p-5 rounded-xl space-y-3.5';
           
           const sevColor = p.severity === 'Severe' ? 'text-red-400' : p.severity === 'Moderate' ? 'text-amber-400' : 'opacity-70';
 
