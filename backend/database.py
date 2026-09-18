@@ -67,12 +67,18 @@ def get_history_for_student(student_id: str) -> List[Dict]:
     return [
         {
             "date": r["date"],
+            "timestamp": r.get("timestamp") or r["date"],
+            "journal_text": r.get("journal_text", ""),
             "mood": r["mood_score"],
+            "mood_score": r["mood_score"],
             "risk": r["risk_level"],
+            "risk_level": r["risk_level"],
             "stress_score": r.get("stress_score", 50),
+            "stress_level": r.get("stress_level", "Moderate"),
             "primary_stressors": r.get("primary_stressors", []),
             "identified_problems": r.get("identified_problems", []),
             "recommended_action": r.get("recommended_action", ""),
+            "sentiment_summary": r.get("sentiment_summary", ""),
             "sleep_insights": r.get("sleep_insights"),
         }
         for r in _records

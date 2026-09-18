@@ -198,8 +198,29 @@
       transition: all 0.15s ease;
     }
     .cal-day-cell:hover:not(.cal-day-empty) {
-      border-color: rgba(212, 175, 55, 0.6);
-      transform: translateY(-1px);
+      transform: translateY(-2px) scale(1.04);
+      z-index: 10;
+    }
+    .cal-day-high-stress {
+      background-color: #dc2626 !important;
+      background: #dc2626 !important;
+      color: #ffffff !important;
+      border-color: #f87171 !important;
+      box-shadow: 0 0 14px rgba(220, 38, 38, 0.75), inset 0 0 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    .cal-day-mod-stress {
+      background-color: #d97706 !important;
+      background: #d97706 !important;
+      color: #ffffff !important;
+      border-color: #fbbf24 !important;
+      box-shadow: 0 0 12px rgba(217, 119, 6, 0.65), inset 0 0 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    .cal-day-good-stress {
+      background-color: #16a34a !important;
+      background: #16a34a !important;
+      color: #ffffff !important;
+      border-color: #4ade80 !important;
+      box-shadow: 0 0 12px rgba(22, 163, 74, 0.65), inset 0 0 8px rgba(0, 0, 0, 0.2) !important;
     }
     .sleep-point-dot {
       cursor: pointer;
@@ -792,10 +813,10 @@
 
           <!-- Legend -->
           <div class="pt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] font-medium" style="border-color: rgba(212, 175, 55, 0.2);">
-            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500/25 border border-emerald-500/70 inline-block"></span><span class="text-emerald-300">Good Day (Green)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500/25 border border-amber-500/70 inline-block"></span><span class="text-amber-300">Moderate (Yellow)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500/25 border border-red-500/70 inline-block"></span><span class="text-red-300">High Stress (Red)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border-2 border-amber-300 inline-block"></span><span class="text-amber-200">Today</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-emerald-600 border border-emerald-400 inline-block shadow-sm"></span><span class="text-emerald-300 font-semibold">Good Day</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-amber-600 border border-amber-400 inline-block shadow-sm"></span><span class="text-amber-300 font-semibold">Moderate</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3.5 h-3.5 rounded bg-red-600 border border-red-400 inline-block shadow-sm"></span><span class="text-red-300 font-bold">High Stress</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full border-2 border-amber-300 inline-block"></span><span class="text-amber-200 font-semibold">Today</span></div>
           </div>
         </div>
 
@@ -1391,9 +1412,11 @@
       // Map entries by date key YYYY-MM-DD
       const dateMap = {};
       (historyData || []).forEach(item => {
-        if (item.timestamp) {
-          const dKey = item.timestamp.split('T')[0];
-          dateMap[dKey] = item;
+        const dKey = item.timestamp ? item.timestamp.split('T')[0] : (item.date || '');
+        if (dKey) {
+          if (!dateMap[dKey] || (item.stress_score ?? 0) >= (dateMap[dKey].stress_score ?? 0)) {
+            dateMap[dKey] = item;
+          }
         }
       });
 
@@ -1409,7 +1432,7 @@
       // Empty cells before the 1st day of month
       for (let i = 0; i < firstDayIndex; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'cal-day-cell cal-day-empty h-10 rounded-lg opacity-20';
+        emptyCell.className = 'cal-day-cell cal-day-empty h-12 rounded-lg opacity-20';
         grid.appendChild(emptyCell);
       }
 
@@ -1421,70 +1444,63 @@
         const hasCheckin = dateMap[dayKey];
         const isToday = (dayKey === todayKey);
 
+        let dayBg = '#101014';
+        let dayBorder = 'rgba(212, 175, 55, 0.2)';
+        let dayColor = '#a1a1aa';
+        let stressClass = '';
+
         if (hasCheckin) {
           monthlyLogs++;
-          totalStress += (hasCheckin.stress_score ?? 50);
-        }
-
-        let dayBg = '#0d0d10';
-        let dayBorder = 'rgba(212, 175, 55, 0.18)';
-        let dayColor = '#a1a1aa';
-        let dotClass = 'w-1.5 h-1.5 rounded-full opacity-0';
-        let stressTag = '';
-
-        if (hasCheckin) {
-          const score = hasCheckin.stress_score ?? (hasCheckin.risk_level === 'HIGH' ? 90 : (hasCheckin.risk_level === 'MEDIUM' ? 65 : 30));
+          const score = hasCheckin.stress_score ?? (
+            (hasCheckin.risk_level === 'HIGH' || hasCheckin.risk === 'HIGH') ? 90 : 
+            (hasCheckin.risk_level === 'MEDIUM' || hasCheckin.risk === 'MEDIUM') ? 65 : 30
+          );
+          totalStress += score;
           
-          if (score >= 85 || hasCheckin.risk_level === 'HIGH') {
-            // High Stress Day -> RED
-            dayBg = 'linear-gradient(135deg, rgba(239, 68, 68, 0.28) 0%, rgba(185, 28, 28, 0.38) 100%)';
-            dayBorder = 'rgba(239, 68, 68, 0.75)';
-            dayColor = '#fca5a5';
-            dotClass = 'w-2 h-2 rounded-full bg-red-500 shadow-sm';
-            stressTag = 'HIGH';
-          } else if (score >= 50 || hasCheckin.risk_level === 'MEDIUM') {
-            // Moderate Stress Day -> YELLOW / AMBER
-            dayBg = 'linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.38) 100%)';
-            dayBorder = 'rgba(245, 158, 11, 0.75)';
-            dayColor = '#fde047';
-            dotClass = 'w-2 h-2 rounded-full bg-amber-400 shadow-sm';
-            stressTag = 'MOD';
+          const isHighStress = (score >= 70) || (hasCheckin.risk_level === 'HIGH') || (hasCheckin.risk === 'HIGH') || (hasCheckin.mood_score <= 1);
+          const isModerateStress = (!isHighStress) && ((score >= 45) || (hasCheckin.risk_level === 'MEDIUM') || (hasCheckin.risk === 'MEDIUM') || (hasCheckin.mood_score <= 3));
+
+          if (isHighStress) {
+            // HIGH STRESS DAY -> FULL SOLID VIVID RED BACKGROUND
+            dayBg = '#dc2626';
+            dayBorder = '#ef4444';
+            dayColor = '#ffffff';
+            stressClass = 'cal-day-high-stress';
+          } else if (isModerateStress) {
+            // MODERATE STRESS DAY -> FULL SOLID VIVID AMBER/YELLOW BACKGROUND
+            dayBg = '#d97706';
+            dayBorder = '#f59e0b';
+            dayColor = '#ffffff';
+            stressClass = 'cal-day-mod-stress';
           } else {
-            // Good / Low Stress Day -> GREEN
-            dayBg = 'linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.38) 100%)';
-            dayBorder = 'rgba(16, 185, 129, 0.75)';
-            dayColor = '#6ee7b7';
-            dotClass = 'w-2 h-2 rounded-full bg-emerald-400 shadow-sm';
-            stressTag = 'GOOD';
+            // GOOD DAY / LOW STRESS -> FULL SOLID VIVID GREEN BACKGROUND
+            dayBg = '#16a34a';
+            dayBorder = '#22c55e';
+            dayColor = '#ffffff';
+            stressClass = 'cal-day-good-stress';
           }
-        } else if (isToday) {
-          dotClass = 'w-2 h-2 rounded-full border border-amber-300 animate-pulse';
         }
 
         const cell = document.createElement('button');
         cell.type = 'button';
-        cell.className = 'cal-day-cell h-12 rounded-lg flex flex-col items-center justify-between p-1.5 text-xs font-semibold relative border transition cursor-pointer hover:scale-[1.04] active:scale-[0.96] shadow-sm';
+        cell.className = `cal-day-cell h-12 rounded-lg flex flex-col items-center justify-center p-1 text-xs font-bold relative border transition cursor-pointer shadow-sm ${stressClass}`;
         
-        cell.style.background = dayBg;
-        cell.style.borderColor = isToday ? '#e5c07b' : dayBorder;
-        cell.style.color = dayColor;
+        cell.style.setProperty('background', dayBg, 'important');
+        cell.style.setProperty('background-color', dayBg, 'important');
+        cell.style.setProperty('border-color', isToday ? '#fce79a' : dayBorder, 'important');
+        cell.style.setProperty('color', dayColor, 'important');
 
         if (isToday) {
-          cell.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.45)';
-          cell.style.outline = '2px solid rgba(229, 192, 123, 0.9)';
+          cell.style.outline = '2px solid #fce79a';
           cell.style.outlineOffset = '1px';
+          cell.style.boxShadow = '0 0 10px rgba(252, 231, 154, 0.45)';
         }
 
         // Day Number
         const dayNumSpan = document.createElement('span');
-        dayNumSpan.className = 'text-[11px] font-mono leading-none font-bold';
+        dayNumSpan.className = hasCheckin ? 'text-sm font-black font-mono leading-none text-white drop-shadow-sm' : 'text-xs font-mono leading-none';
         dayNumSpan.textContent = day;
         cell.appendChild(dayNumSpan);
-
-        // Status indicator dot or mini tag
-        const dot = document.createElement('span');
-        dot.className = dotClass;
-        cell.appendChild(dot);
 
         cell.onclick = () => selectCalendarDay(dayKey, day, hasCheckin);
         grid.appendChild(cell);
@@ -1520,10 +1536,10 @@
         
         if (detailBadge) {
           detailBadge.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-400', 'bg-amber-500/20', 'text-amber-400', 'bg-red-500/20', 'text-red-400');
-          if (risk === 'HIGH' || score >= 85) {
+          if (risk === 'HIGH' || score >= 70) {
             detailBadge.classList.add('bg-red-500/20', 'text-red-400');
             detailBadge.textContent = `High Stress (${score}/100)`;
-          } else if (risk === 'LOW' || score < 50) {
+          } else if (risk === 'LOW' || score < 45) {
             detailBadge.classList.add('bg-emerald-500/20', 'text-emerald-400');
             detailBadge.textContent = `Low Stress (${score}/100)`;
           } else {
@@ -2119,6 +2135,7 @@
         const data = await resp.json();
         renderAnalysisResults(data);
         updateFlagCounter();
+        renderCalendar();
 
       } catch (err) {
         alert('Assessment request failed: ' + err.message);
