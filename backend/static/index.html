@@ -1211,11 +1211,73 @@
 
         </div>
 
+        <!-- Problems & Targeted Solutions -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold">Identified Problems & Targeted Solutions</h3>
+              <p class="text-xs opacity-70 mt-0.5">
+                Root causes isolated from the journal text, paired with immediate remedies and structured solutions.
+              </p>
+            </div>
+            <span id="problem-count-pill" class="px-2 py-0.5 rounded panel-subtle text-xs font-mono">
+              0 Problems Isolated
+            </span>
+          </div>
+
+          <div id="problems-remedies-feed" class="space-y-3.5">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Prescribed Sleep Recovery Protocol Card (Differentiated by Stress Score) -->
+        <div id="prescribed-sleep-card" class="panel panel-card-glow rounded-xl p-5 space-y-4 border" style="border-color: rgba(234, 179, 8, 0.4);">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--border);">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              </div>
+              <div>
+                <h4 id="prescribed-sleep-headline" class="text-sm font-bold text-zinc-100">🛌 Prescribed Rest Protocol: Mandatory 8-Hour Recovery Sleep</h4>
+                <p id="prescribed-sleep-subtext" class="text-xs opacity-70">Clinical intervention to lower acute cortisol & restore prefrontal memory retention.</p>
+              </div>
+            </div>
+            <span id="prescribed-sleep-badge" class="px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              ⚡ High Stress Reset
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="panel-subtle rounded-lg p-3.5 space-y-2">
+              <span class="text-[11px] font-semibold opacity-80 uppercase tracking-wider block text-amber-400">Why Sleep Is Your #1 Solution:</span>
+              <p id="prescribed-sleep-narrative" class="text-xs opacity-90 leading-relaxed">
+                When stress levels surge, continuing to study or cram gives diminishing returns. Sleeping 8 hours flushes metabolic brain waste and resets emotional panic.
+              </p>
+            </div>
+            <div class="panel-subtle rounded-lg p-3.5 space-y-2">
+              <span class="text-[11px] font-semibold opacity-80 uppercase tracking-wider block text-amber-400">Tonight's Sleep Action Rules:</span>
+              <ul id="prescribed-sleep-tips" class="text-xs opacity-90 space-y-1.5 list-disc list-inside">
+                <li>Digital Sunset: Power down screens 30m before bedtime.</li>
+                <li>Target a solid 8-hour sleep block tonight.</li>
+                <li>Keep bedroom cool and dark (68°F / 20°C).</li>
+                <li>Avoid caffeine, tea, or heavy late meals after 3:00 PM.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         <!-- Breathing Reset Protocol -->
-        <div class="panel panel-card-glow rounded-xl p-5 space-y-4">
+        <div id="breathing-card-container" class="panel panel-card-glow rounded-xl p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h4 class="text-sm font-semibold">Box Breathing Reset (4-4-4-4)</h4>
+              <div class="flex items-center gap-2">
+                <h4 class="text-sm font-semibold">Box Breathing Reset (4-4-4-4)</h4>
+                <span id="breathing-auto-badge" class="hidden px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30">
+                  ⚡ Auto-Triggered for High Stress
+                </span>
+              </div>
               <p class="text-xs opacity-70">A therapeutic breathing exercise to help reduce stress and lower heart rate.</p>
             </div>
             <div class="flex items-center gap-2">
@@ -1233,7 +1295,8 @@
                 type="button"
                 id="breathing-toggle-btn"
                 onclick="toggleBreathing()"
-                class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
+                class="px-4 py-2 rounded-lg panel-subtle text-xs font-semibold transition border shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+                style="border-color: rgba(212, 175, 55, 0.4);"
               >
                 Start Breathing Guide
               </button>
@@ -1242,17 +1305,75 @@
 
           <!-- Breathing Circle Area -->
           <div id="breathing-viz" class="hidden flex flex-col items-center justify-center py-6 space-y-3">
-            <div class="relative flex items-center justify-center w-32 h-32">
-              <div id="breathing-circle" class="breathing-indicator absolute w-20 h-20 rounded-full panel-subtle transition-transform"></div>
-              <span id="breathing-phase-text" class="relative z-10 text-xs font-medium uppercase tracking-wider text-center">Inhale (4s)</span>
+            <div class="relative flex items-center justify-center w-36 h-36">
+              <div id="breathing-circle" class="breathing-indicator absolute w-24 h-24 rounded-full panel-subtle transition-transform shadow-lg"></div>
+              <span id="breathing-phase-text" class="relative z-10 text-xs font-bold uppercase tracking-wider text-center text-zinc-100">Inhale (4s)</span>
             </div>
             <p id="breathing-sound-cue" class="text-[11px] font-mono text-center text-amber-400 transition-opacity">
               ♪ Rising Harmonic Swell
             </p>
-            <p class="text-xs opacity-70 text-center max-w-sm">
+            <p class="text-xs opacity-80 text-center max-w-sm">
               Inhale smoothly (4s) &bull; Hold lungs full (4s) &bull; Exhale completely (4s) &bull; Hold empty (4s)
             </p>
           </div>
+        </div>
+
+        <!-- Mood Uplift & Distraction Lounge: YouTube Stand-Up Comedy & Feel-Good Songs -->
+        <div id="mood-uplift-lounge" class="panel panel-card-glow rounded-xl p-6 space-y-6 border" style="border-color: rgba(212, 175, 55, 0.35);">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-4" style="border-color: var(--border);">
+            <div class="space-y-1">
+              <div class="flex items-center gap-2">
+                <span class="text-lg">🎬</span>
+                <h3 class="text-base font-bold tracking-tight">Mood Uplift & Laughter Lounge</h3>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30">
+                  YouTube Curations
+                </span>
+              </div>
+              <p class="text-xs opacity-75">
+                Take a 10–15 minute psychological break. Genuine laughter and uplifting music release endorphins that counteract cortisol.
+              </p>
+            </div>
+            <div class="flex items-center gap-2 text-xs font-semibold">
+              <span class="opacity-60 font-mono">Curated For:</span>
+              <span id="uplift-tier-pill" class="px-2.5 py-1 rounded panel-subtle text-amber-300 border" style="border-color: rgba(212, 175, 55, 0.3);">
+                High Stress Relief
+              </span>
+            </div>
+          </div>
+
+          <!-- Section 1: YouTube Stand-Up Comedy Videos -->
+          <div class="space-y-3.5">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                <h4 class="text-sm font-bold text-zinc-100">Top Stand-Up Comedy Videos (YouTube)</h4>
+              </div>
+              <span class="text-[11px] opacity-60">Click to watch instantly</span>
+            </div>
+
+            <div id="standup-videos-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
+          <!-- Section 2: Feel-Good & Fun Songs -->
+          <div class="space-y-3.5 pt-2 border-t" style="border-color: var(--border);">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-base">🎵</span>
+                <h4 class="text-sm font-bold text-zinc-100">Feel-Good & Mood-Lifting Songs (YouTube)</h4>
+              </div>
+              <span class="text-[11px] opacity-60">Stream uplifting playlists</span>
+            </div>
+
+            <div id="feelgood-songs-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+              <!-- Populated via JS -->
+            </div>
+          </div>
+
         </div>
 
       </div>
@@ -2319,6 +2440,131 @@
           problemsFeed.appendChild(card);
         });
       }
+
+      // ── Sleep Prescription & Differentiated Remedies ─────────────
+      const sleepRec = data.sleep_recommendation;
+      const sleepCard = document.getElementById('prescribed-sleep-card');
+      const isHighStress = (score >= 70) || (data.risk_level === 'HIGH');
+      
+      if (sleepCard) {
+        sleepCard.classList.remove('hidden');
+        if (isHighStress) {
+          sleepCard.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+          sleepCard.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.15)';
+        } else {
+          sleepCard.style.borderColor = 'rgba(234, 179, 8, 0.4)';
+          sleepCard.style.boxShadow = 'none';
+        }
+
+        if (sleepRec) {
+          document.getElementById('prescribed-sleep-headline').textContent = sleepRec.headline || '🛌 Prescribed Sleep & Rest Protocol';
+          document.getElementById('prescribed-sleep-badge').textContent = sleepRec.badge || (isHighStress ? '⚡ High Stress Reset' : '🌙 Sleep Buffer');
+          if (isHighStress) {
+            document.getElementById('prescribed-sleep-badge').className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/30';
+          } else {
+            document.getElementById('prescribed-sleep-badge').className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30';
+          }
+          document.getElementById('prescribed-sleep-narrative').textContent = sleepRec.narrative || '';
+          
+          const tipsList = document.getElementById('prescribed-sleep-tips');
+          tipsList.innerHTML = '';
+          (sleepRec.actionable_tips || []).forEach(tip => {
+            const li = document.createElement('li');
+            li.textContent = tip;
+            tipsList.appendChild(li);
+          });
+        }
+      }
+
+      // ── Box Breathing Auto-Trigger ─────────────────────────────
+      const breathingAutoBadge = document.getElementById('breathing-auto-badge');
+      if (isHighStress || (data.box_breathing_suggestion && data.box_breathing_suggestion.auto_trigger)) {
+        if (breathingAutoBadge) breathingAutoBadge.classList.remove('hidden');
+        // Auto-start Box Breathing for immediate physiological relief
+        if (!isBreathingActive) {
+          toggleBreathing(true);
+        }
+      } else {
+        if (breathingAutoBadge) breathingAutoBadge.classList.add('hidden');
+      }
+
+      // ── Mood Uplift Lounge: Stand-Up Comedy & Feel-Good Songs ────
+      const upliftPill = document.getElementById('uplift-tier-pill');
+      if (upliftPill) {
+        upliftPill.textContent = isHighStress ? 'High Stress Relief (Laughter & Dopamine)' : (score >= 45 ? 'Moderate Stress Pacing' : 'Positive Momentum Boost');
+      }
+
+      // 1. YouTube Stand-Up Comedy Videos
+      const standupGrid = document.getElementById('standup-videos-grid');
+      if (standupGrid) {
+        standupGrid.innerHTML = '';
+        const videos = data.standup_comedy_videos || [];
+        videos.forEach(v => {
+          const card = document.createElement('a');
+          card.href = v.url;
+          card.target = '_blank';
+          card.rel = 'noopener noreferrer';
+          card.className = 'panel panel-card-glow rounded-xl overflow-hidden flex flex-col group transition hover:scale-[1.03] active:scale-[0.98] border shadow-md block text-inherit no-underline';
+          card.style.borderColor = 'rgba(212, 175, 55, 0.25)';
+
+          card.innerHTML = `
+            <div class="relative w-full aspect-video bg-zinc-900 overflow-hidden">
+              <img src="${escapeHtml(v.thumbnail || '')}" alt="${escapeHtml(v.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://img.youtube.com/vi/dtaJzUbQS7E/mqdefault.jpg'" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent flex items-end justify-between p-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-red-600 text-white shadow-sm flex items-center gap-1">
+                  <svg class="w-2.5 h-2.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> YouTube
+                </span>
+                <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-black/80 text-zinc-300 font-medium">${escapeHtml(v.duration || 'Video')}</span>
+              </div>
+            </div>
+            <div class="p-3.5 flex-1 flex flex-col justify-between space-y-2">
+              <div class="space-y-1">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-amber-400 font-mono">${escapeHtml(v.comedian || 'Stand-Up')}</div>
+                <h5 class="text-xs font-bold leading-snug line-clamp-2 text-zinc-100 group-hover:text-amber-300 transition-colors">${escapeHtml(v.title)}</h5>
+                <p class="text-[11px] opacity-70 leading-relaxed line-clamp-2">${escapeHtml(v.description || '')}</p>
+              </div>
+              <div class="pt-2 border-t flex items-center justify-between text-[11px] font-semibold text-amber-400" style="border-color: var(--border);">
+                <span>Watch on YouTube</span>
+                <svg class="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </div>
+            </div>
+          `;
+          standupGrid.appendChild(card);
+        });
+      }
+
+      // 2. Feel-Good Songs
+      const songsGrid = document.getElementById('feelgood-songs-grid');
+      if (songsGrid) {
+        songsGrid.innerHTML = '';
+        const songs = data.feel_good_songs || [];
+        songs.forEach(s => {
+          const card = document.createElement('a');
+          card.href = s.url;
+          card.target = '_blank';
+          card.rel = 'noopener noreferrer';
+          card.className = 'panel panel-card-glow rounded-xl overflow-hidden flex items-center gap-3 p-3 group transition hover:scale-[1.02] active:scale-[0.98] border shadow-md block text-inherit no-underline';
+          card.style.borderColor = 'rgba(212, 175, 55, 0.25)';
+
+          card.innerHTML = `
+            <div class="relative w-14 h-14 rounded-lg bg-zinc-900 overflow-hidden shrink-0 border border-zinc-700/50">
+              <img src="${escapeHtml(s.thumbnail || '')}" alt="${escapeHtml(s.title)}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.src='https://img.youtube.com/vi/fdubeMFwuGs/mqdefault.jpg'" />
+              <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span class="w-5 h-5 rounded-full bg-amber-400 text-black flex items-center justify-center text-[10px] font-bold shadow-md">▶</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0 space-y-0.5">
+              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-block">${escapeHtml(s.vibe || 'Feel-Good')}</span>
+              <h5 class="text-xs font-bold leading-tight truncate text-zinc-100 group-hover:text-amber-300 transition-colors">${escapeHtml(s.title)}</h5>
+              <div class="text-[11px] opacity-70 truncate">${escapeHtml(s.artist || '')}</div>
+            </div>
+            <div class="shrink-0 text-amber-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all pr-1">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </div>
+          `;
+          songsGrid.appendChild(card);
+        });
+      }
     }
 
     // =========================================================================
@@ -2488,26 +2734,31 @@
     }
 
     // Box Breathing Guide
-    function toggleBreathing() {
+    function toggleBreathing(forceStart = false) {
       const viz = document.getElementById('breathing-viz');
       const btn = document.getElementById('breathing-toggle-btn');
       const circle = document.getElementById('breathing-circle');
       const text = document.getElementById('breathing-phase-text');
       const cue = document.getElementById('breathing-sound-cue');
 
-      isBreathingActive = !isBreathingActive;
+      if (forceStart) {
+        isBreathingActive = true;
+      } else {
+        isBreathingActive = !isBreathingActive;
+      }
 
       if (isBreathingActive) {
         viz.classList.remove('hidden');
         btn.textContent = 'Pause Guide';
+        btn.className = 'px-4 py-2 rounded-lg bg-red-500/20 text-red-300 border border-red-500/40 text-xs font-semibold transition shadow-sm';
         circle.classList.add('active');
         getBreathingAudioContext();
 
+        if (breathingInterval) clearInterval(breathingInterval);
         let cycleTime = 0;
         text.textContent = 'Inhale... (4s)';
         if (cue) cue.textContent = '♪ Rising Harmonic Swell';
         playBreathingSound('inhale');
-
         breathingInterval = setInterval(() => {
           cycleTime = (cycleTime + 1) % 16;
           const secInPhase = 4 - (cycleTime % 4);
@@ -2540,9 +2791,11 @@
         }, 1000);
 
       } else {
-        clearInterval(breathingInterval);
+        if (breathingInterval) clearInterval(breathingInterval);
         circle.classList.remove('active');
         btn.textContent = 'Start Breathing Guide';
+        btn.className = 'px-4 py-2 rounded-lg panel-subtle text-xs font-semibold transition border shadow-sm hover:scale-[1.02] active:scale-[0.98]';
+        btn.style.borderColor = 'rgba(212, 175, 55, 0.4)';
       }
     }
 
