@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>StressSense - Student Stress Assessment & Triage</title>
+  <title>StressSense - Student Stress Assessment & Support</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -86,14 +86,10 @@
       
       <!-- Brand & Identity -->
       <div class="flex items-center space-x-3">
-        <div class="w-8 h-8 rounded-lg panel flex items-center justify-center">
-          <svg class="w-4 h-4 opacity-90" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-        </div>
+        <img src="/static/logo.jpg" alt="StressSense" class="w-8 h-8 rounded-lg object-cover" />
         <div>
           <h1 class="text-base font-semibold tracking-tight leading-tight">StressSense</h1>
-          <p class="text-xs opacity-70">Student Stress Assessment & Clinical Triage</p>
+          <p class="text-xs opacity-70">Student Stress Assessment & Support</p>
         </div>
       </div>
 
@@ -105,7 +101,7 @@
           <button id="tab-btn-checkin" onclick="switchTab('checkin')" class="px-3.5 py-1.5 rounded-md shadow-sm transition" style="background-color: var(--tab-active-bg); color: var(--tab-active-text);">
             Assessment & Remedies
           </button>
-          <button id="tab-btn-counselor" onclick="switchTab('counselor')" class="px-3.5 py-1.5 rounded-md opacity-70 hover:opacity-100 transition flex items-center gap-1.5">
+          <button id="tab-btn-counselor" onclick="switchTab('counselor')" class="px-3.5 py-1.5 rounded-md transition flex items-center gap-1.5" style="color: var(--text-muted);">
             Counselor Queue
             <span id="flag-counter-pill" class="hidden px-1.5 py-0.2 rounded panel text-red-400 text-[10px] font-mono">0</span>
           </button>
@@ -116,7 +112,7 @@
           id="theme-toggle-btn"
           type="button"
           onclick="toggleTheme()"
-          class="p-2 rounded-lg panel hover:opacity-90 transition flex items-center justify-center"
+          class="p-2 rounded-lg panel transition flex items-center justify-center"
           title="Toggle Light / Dark Mode"
           aria-label="Toggle Color Theme"
         >
@@ -135,7 +131,7 @@
           id="profile-btn"
           type="button"
           onclick="openProfileDrawer()"
-          class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg panel hover:opacity-90 transition text-xs"
+          class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg panel transition text-xs"
           title="Student Profile & History"
         >
           <div class="w-5 h-5 rounded-full panel-subtle flex items-center justify-center">
@@ -175,7 +171,7 @@
         <button
           type="button"
           onclick="closeProfileDrawer()"
-          class="p-1.5 rounded-lg panel-subtle hover:opacity-80 transition"
+          class="p-1.5 rounded-lg panel-subtle transition"
           title="Close sidebar"
         >
           <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -197,7 +193,7 @@
           <div class="flex items-baseline justify-between">
             <div>
               <div id="drawer-current-id" class="text-base font-mono font-semibold tracking-tight">student_042</div>
-              <p class="text-[11px] opacity-60 mt-0.5">Anonymized clinical alias for journal records</p>
+              <p class="text-[11px] opacity-60 mt-0.5">Anonymous alias for journal records</p>
             </div>
           </div>
 
@@ -225,9 +221,9 @@
             <!-- Quick preset aliases -->
             <div class="flex flex-wrap items-center gap-1.5 pt-1">
               <span class="text-[10px] opacity-50">Quick:</span>
-              <button type="button" onclick="setStudentId('student_042')" class="px-2 py-0.5 rounded panel text-[10px] font-mono opacity-70 hover:opacity-100">student_042</button>
-              <button type="button" onclick="setStudentId('student_alex')" class="px-2 py-0.5 rounded panel text-[10px] font-mono opacity-70 hover:opacity-100">student_alex</button>
-              <button type="button" onclick="setStudentId('guest_student')" class="px-2 py-0.5 rounded panel text-[10px] font-mono opacity-70 hover:opacity-100">guest_student</button>
+              <button type="button" onclick="setStudentId('student_042')" class="px-2 py-0.5 rounded panel text-[10px] font-mono transition">student_042</button>
+              <button type="button" onclick="setStudentId('student_alex')" class="px-2 py-0.5 rounded panel text-[10px] font-mono transition">student_alex</button>
+              <button type="button" onclick="setStudentId('guest_student')" class="px-2 py-0.5 rounded panel text-[10px] font-mono transition">guest_student</button>
             </div>
           </form>
         </div>
@@ -242,7 +238,7 @@
             <button
               type="button"
               onclick="loadHistory()"
-              class="px-2.5 py-1 rounded panel text-[11px] font-medium opacity-80 hover:opacity-100 transition flex items-center gap-1"
+              class="px-2.5 py-1 rounded panel text-[11px] font-medium transition flex items-center gap-1"
             >
               <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
               Refresh
@@ -351,7 +347,7 @@
               id="journal_text"
               rows="4"
               required
-              placeholder="Describe your current workload, sleep schedule, emotional stressors, or academic challenges..."
+              placeholder="How are you feeling today? Write about anything on your mind..."
               class="w-full panel rounded-lg p-3 text-sm placeholder-zinc-500 focus:outline-none transition leading-relaxed"
               oninput="updateCharCount()"
             ></textarea>
@@ -361,7 +357,7 @@
           <div class="flex flex-wrap items-center justify-between gap-4 pt-1">
             <p class="text-xs opacity-60">
               Posting as <span id="form-active-student" class="font-mono font-medium opacity-90">student_042</span> &bull;
-              <button type="button" onclick="openProfileDrawer()" class="underline hover:opacity-100 opacity-80">switch alias</button>
+              <button type="button" onclick="openProfileDrawer()" class="underline">switch alias</button>
             </p>
             <button
               type="submit"
@@ -389,7 +385,7 @@
                 <h3 class="text-sm font-semibold">Urgent Support Available</h3>
               </div>
               <p class="text-xs opacity-80 mt-1 leading-relaxed">
-                If you are in immediate distress or having thoughts of self-harm, confidential clinical support is available 24/7.
+                If you are in immediate distress or having thoughts of self-harm, confidential support is available 24/7.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2 shrink-0">
@@ -471,7 +467,7 @@
 
           <!-- Sentiment Summary -->
           <div class="panel-subtle rounded-lg p-3.5 text-xs opacity-90 leading-relaxed">
-            <span class="font-medium">Clinical Evaluation: </span>
+            <span class="font-medium">Evaluation Summary: </span>
             <span id="sentiment-summary-text"></span>
           </div>
 
@@ -501,13 +497,13 @@
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h4 class="text-sm font-semibold">Box Breathing Reset (4-4-4-4)</h4>
-              <p class="text-xs opacity-70">A clinically validated exercise to regulate acute physical stress and heart rate.</p>
+              <p class="text-xs opacity-70">A breathing exercise to help reduce stress and lower heart rate.</p>
             </div>
             <button
               type="button"
               id="breathing-toggle-btn"
               onclick="toggleBreathing()"
-              class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition hover:opacity-90"
+              class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
             >
               Start Breathing Guide
             </button>
@@ -535,13 +531,13 @@
     <section id="tab-counselor" class="hidden space-y-6">
       <div class="panel p-5 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-semibold">Counselor Triage Queue</h2>
+          <h2 class="text-base font-semibold">Counselor Review Queue</h2>
           <p class="text-xs opacity-70 mt-0.5">High-priority alerts where automated analysis flagged urgent distress.</p>
         </div>
         <button
           type="button"
           onclick="loadCounselorFlags()"
-          class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition hover:opacity-90"
+          class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
         >
           Refresh Alerts
         </button>
@@ -556,7 +552,7 @@
 
   <!-- Footer -->
   <footer class="border-t py-5 text-center text-xs opacity-60 mt-auto" style="border-color: var(--border);">
-    <p>StressSense Student Wellbeing Platform. Standard clinical triage guidelines apply.</p>
+    <p>StressSense Student Wellbeing Platform.</p>
     <p class="mt-1 opacity-80">
       National Crisis & Suicide Lifeline: 988 (Toll-Free, 24/7)
     </p>
@@ -1000,7 +996,7 @@
     // Counselor Flags Loader
     async function loadCounselorFlags() {
       const feed = document.getElementById('counselor-flags-list');
-      feed.innerHTML = '<div class="text-center py-8 text-xs opacity-60">Loading triage flags...</div>';
+      feed.innerHTML = '<div class="text-center py-8 text-xs opacity-60">Loading flagged entries...</div>';
 
       try {
         const resp = await fetch('/api/counselor/flags');
@@ -1012,7 +1008,7 @@
         if (!list || list.length === 0) {
           feed.innerHTML = `
             <div class="panel p-8 rounded-xl text-center text-xs space-y-1 opacity-70">
-              <p class="font-semibold">Triage Queue Empty</p>
+              <p class="font-semibold">Queue Empty</p>
               <p>There are no active urgent counselor flags.</p>
             </div>
           `;
@@ -1045,7 +1041,7 @@
             </div>
 
             <div class="panel-subtle p-3 rounded-lg space-y-1">
-              <span class="text-[10px] uppercase font-semibold opacity-60 block">Triage Protocol:</span>
+              <span class="text-[10px] uppercase font-semibold opacity-60 block">Recommended Action:</span>
               <p class="text-xs opacity-90">${escapeHtml(flag.recommended_action)}</p>
             </div>
           `;
