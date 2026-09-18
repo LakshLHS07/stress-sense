@@ -212,13 +212,13 @@
 <body class="antialiased flex flex-col min-h-screen selection:bg-zinc-800 selection:text-zinc-100">
 
   <!-- Application Navbar (Solid, No Glassmorphism) -->
-  <header class="app-header border-b sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4">
+  <header class="app-header border-b sticky top-0 z-40 w-full">
+    <div class="w-full px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
       
-      <!-- Brand & Identity -->
-      <div class="flex items-center space-x-3">
+      <!-- Brand & Identity (Aligned firmly to the left) -->
+      <div class="flex items-center space-x-3 text-left shrink-0">
         <img src="/static/logo.jpg" alt="StressSense" class="w-8 h-8 rounded-lg object-cover" />
-        <div>
+        <div class="text-left">
           <h1 class="text-base font-semibold tracking-tight leading-tight">StressSense</h1>
           <p class="text-xs opacity-70">Student Stress Assessment & Support</p>
         </div>
