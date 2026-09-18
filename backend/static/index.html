@@ -791,11 +791,11 @@
           </div>
 
           <!-- Legend -->
-          <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] opacity-75" style="border-color: rgba(212, 175, 55, 0.15);">
-            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>Low (0-49)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Moderate (50-84)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span>High (85+)</span></div>
-            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border border-amber-300"></span><span>Today</span></div>
+          <div class="pt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] font-medium" style="border-color: rgba(212, 175, 55, 0.2);">
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-emerald-500/25 border border-emerald-500/70 inline-block"></span><span class="text-emerald-300">Good Day (Green)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-amber-500/25 border border-amber-500/70 inline-block"></span><span class="text-amber-300">Moderate (Yellow)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-3 h-3 rounded bg-red-500/25 border border-red-500/70 inline-block"></span><span class="text-red-300">High Stress (Red)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full border-2 border-amber-300 inline-block"></span><span class="text-amber-200">Today</span></div>
           </div>
         </div>
 
@@ -1411,42 +1411,64 @@
           totalStress += (hasCheckin.stress_score ?? 50);
         }
 
-        const cell = document.createElement('button');
-        cell.type = 'button';
-        cell.className = 'cal-day-cell h-11 rounded-lg flex flex-col items-center justify-between p-1.5 text-xs font-semibold relative border transition cursor-pointer hover:border-amber-400';
-        
-        if (isToday) {
-          cell.style.borderColor = '#e5c07b';
-          cell.style.boxShadow = '0 0 8px rgba(212, 175, 55, 0.35)';
-        } else {
-          cell.style.borderColor = 'rgba(212, 175, 55, 0.15)';
+        let dayBg = '#0d0d10';
+        let dayBorder = 'rgba(212, 175, 55, 0.18)';
+        let dayColor = '#a1a1aa';
+        let dotClass = 'w-1.5 h-1.5 rounded-full opacity-0';
+        let stressTag = '';
+
+        if (hasCheckin) {
+          const score = hasCheckin.stress_score ?? (hasCheckin.risk_level === 'HIGH' ? 90 : (hasCheckin.risk_level === 'MEDIUM' ? 65 : 30));
+          
+          if (score >= 85 || hasCheckin.risk_level === 'HIGH') {
+            // High Stress Day -> RED
+            dayBg = 'linear-gradient(135deg, rgba(239, 68, 68, 0.28) 0%, rgba(185, 28, 28, 0.38) 100%)';
+            dayBorder = 'rgba(239, 68, 68, 0.75)';
+            dayColor = '#fca5a5';
+            dotClass = 'w-2 h-2 rounded-full bg-red-500 shadow-sm';
+            stressTag = 'HIGH';
+          } else if (score >= 50 || hasCheckin.risk_level === 'MEDIUM') {
+            // Moderate Stress Day -> YELLOW / AMBER
+            dayBg = 'linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.38) 100%)';
+            dayBorder = 'rgba(245, 158, 11, 0.75)';
+            dayColor = '#fde047';
+            dotClass = 'w-2 h-2 rounded-full bg-amber-400 shadow-sm';
+            stressTag = 'MOD';
+          } else {
+            // Good / Low Stress Day -> GREEN
+            dayBg = 'linear-gradient(135deg, rgba(16, 185, 129, 0.28) 0%, rgba(5, 150, 105, 0.38) 100%)';
+            dayBorder = 'rgba(16, 185, 129, 0.75)';
+            dayColor = '#6ee7b7';
+            dotClass = 'w-2 h-2 rounded-full bg-emerald-400 shadow-sm';
+            stressTag = 'GOOD';
+          }
+        } else if (isToday) {
+          dotClass = 'w-2 h-2 rounded-full border border-amber-300 animate-pulse';
         }
 
-        cell.style.backgroundColor = hasCheckin ? '#15151b' : '#0d0d10';
-        cell.style.color = hasCheckin ? '#f6d88c' : '#a1a1aa';
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cal-day-cell h-12 rounded-lg flex flex-col items-center justify-between p-1.5 text-xs font-semibold relative border transition cursor-pointer hover:scale-[1.04] active:scale-[0.96] shadow-sm';
+        
+        cell.style.background = dayBg;
+        cell.style.borderColor = isToday ? '#e5c07b' : dayBorder;
+        cell.style.color = dayColor;
+
+        if (isToday) {
+          cell.style.boxShadow = '0 0 10px rgba(212, 175, 55, 0.45)';
+          cell.style.outline = '2px solid rgba(229, 192, 123, 0.9)';
+          cell.style.outlineOffset = '1px';
+        }
 
         // Day Number
         const dayNumSpan = document.createElement('span');
-        dayNumSpan.className = 'text-[11px] font-mono leading-none';
+        dayNumSpan.className = 'text-[11px] font-mono leading-none font-bold';
         dayNumSpan.textContent = day;
         cell.appendChild(dayNumSpan);
 
-        // Status indicator dot
+        // Status indicator dot or mini tag
         const dot = document.createElement('span');
-        if (hasCheckin) {
-          const score = hasCheckin.stress_score ?? 50;
-          if (score >= 85) {
-            dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500 shadow-sm';
-          } else if (score >= 50) {
-            dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm';
-          } else {
-            dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm';
-          }
-        } else if (isToday) {
-          dot.className = 'w-1.5 h-1.5 rounded-full border border-amber-300 animate-pulse';
-        } else {
-          dot.className = 'w-1.5 h-1.5 rounded-full opacity-0';
-        }
+        dot.className = dotClass;
         cell.appendChild(dot);
 
         cell.onclick = () => selectCalendarDay(dayKey, day, hasCheckin);
