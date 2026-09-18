@@ -182,6 +182,25 @@
       border-left: 1px solid var(--border);
       box-shadow: -10px 0 25px rgba(0, 0, 0, 0.08);
     }
+
+    /* Calendar black and gold theme drawer */
+    #calendar-drawer-panel {
+      background-color: #0b0b0e;
+      border-left: 1px solid rgba(212, 175, 55, 0.35);
+      box-shadow: -10px 0 45px -5px rgba(212, 175, 55, 0.18), -25px 0 70px -10px rgba(0, 0, 0, 0.95);
+    }
+    html.light #calendar-drawer-panel {
+      background-color: #ffffff;
+      border-left: 1px solid rgba(212, 175, 55, 0.4);
+      box-shadow: -10px 0 25px rgba(0, 0, 0, 0.1);
+    }
+    .cal-day-cell {
+      transition: all 0.15s ease;
+    }
+    .cal-day-cell:hover:not(.cal-day-empty) {
+      border-color: rgba(212, 175, 55, 0.6);
+      transform: translateY(-1px);
+    }
     .sleep-point-dot {
       cursor: pointer;
       transition: transform 0.15s ease, r 0.15s ease;
@@ -227,7 +246,7 @@
       <!-- Controls: Navigation Tabs & Profile & Dark/Light Switch -->
       <div class="flex items-center gap-2.5">
         
-        <!-- Navigation Tabs (Only Assessment and Counselor Queue; History moved to Profile) -->
+        <!-- Navigation Tabs (Assessment and Counselor Queue) -->
         <nav class="flex items-center panel p-1 rounded-lg text-xs font-medium">
           <button id="tab-btn-checkin" onclick="switchTab('checkin')" class="px-3.5 py-1.5 rounded-md shadow-sm transition" style="background-color: var(--tab-active-bg); color: var(--tab-active-text);">
             Assessment & Remedies
@@ -237,6 +256,21 @@
             <span id="flag-counter-pill" class="hidden px-1.5 py-0.2 rounded panel text-red-400 text-[10px] font-mono">0</span>
           </button>
         </nav>
+
+        <!-- Calendar Button (Black and Gold Theme) -->
+        <button
+          id="calendar-btn"
+          type="button"
+          onclick="openCalendarDrawer()"
+          class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg transition text-xs font-semibold shadow-md hover:scale-[1.03] active:scale-[0.97]"
+          style="background: linear-gradient(135deg, #18181c 0%, #0c0c0e 100%); color: #f5d77f; border: 1px solid rgba(212, 175, 55, 0.45); box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);"
+          title="Open Wellbeing Calendar & Check-in Timeline"
+        >
+          <svg class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span class="tracking-wide">Calendar</span>
+        </button>
 
         <!-- Sleep Tracker Slider Button -->
         <button
@@ -665,6 +699,133 @@
     </div>
   </div>
 
+  <!-- Slide-Over Slider Drawer: Wellbeing Calendar Timeline (Black & Gold Theme) -->
+  <div id="calendar-drawer-container" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+    <div id="calendar-drawer-backdrop" onclick="closeCalendarDrawer()" class="absolute inset-0 bg-black/70 backdrop-blur-[2px] transition-opacity cursor-pointer"></div>
+    
+    <!-- Drawer Panel Sliding From Right -->
+    <div id="calendar-drawer-panel" class="absolute inset-y-0 right-0 max-w-lg w-full panel shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-full overflow-hidden">
+      
+      <!-- Drawer Header -->
+      <div class="p-5 border-b flex items-center justify-between" style="border-color: rgba(212, 175, 55, 0.25); background: linear-gradient(180deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%);">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg flex items-center justify-center border shadow-sm" style="background: #141418; border-color: rgba(212, 175, 55, 0.4);">
+            <svg class="w-4 h-4 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold tracking-wide" style="color: #f6d88c;">Wellbeing Calendar</h3>
+            <p class="text-[11px] opacity-70">Daily Stress, Mood & Journal Timeline</p>
+          </div>
+        </div>
+        
+        <button
+          type="button"
+          onclick="closeCalendarDrawer()"
+          class="p-1.5 rounded-lg panel-subtle opacity-70 hover:opacity-100 transition border border-transparent hover:border-amber-400/30"
+          aria-label="Close Calendar Drawer"
+        >
+          <svg class="w-4 h-4 text-amber-200/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Drawer Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-5">
+
+        <!-- Month Navigation & Controls -->
+        <div class="flex items-center justify-between p-3 rounded-xl border" style="background: #121216; border-color: rgba(212, 175, 55, 0.25);">
+          <button
+            type="button"
+            onclick="changeCalendarMonth(-1)"
+            class="p-1.5 rounded-lg panel transition text-amber-300 hover:text-amber-100 hover:border-amber-400/40"
+            title="Previous Month"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+          </button>
+
+          <div class="text-center">
+            <div id="cal-month-year-title" class="text-sm font-bold tracking-wide" style="color: #f6d88c;">September 2026</div>
+            <div class="text-[10px] opacity-60 tracking-wider uppercase font-semibold">Stress & Reflection Log</div>
+          </div>
+
+          <button
+            type="button"
+            onclick="changeCalendarMonth(1)"
+            class="p-1.5 rounded-lg panel transition text-amber-300 hover:text-amber-100 hover:border-amber-400/40"
+            title="Next Month"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <!-- Key Metrics Strip (Black & Gold) -->
+        <div class="grid grid-cols-3 gap-2.5">
+          <div class="p-3 rounded-xl border text-center" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
+            <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Monthly Logs</div>
+            <div id="cal-stat-total" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">0</div>
+          </div>
+          <div class="p-3 rounded-xl border text-center" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
+            <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Avg Stress</div>
+            <div id="cal-stat-avg" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">--</div>
+          </div>
+          <div class="p-3 rounded-xl border text-center" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
+            <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Active Streak</div>
+            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">🔥 0d</div>
+          </div>
+        </div>
+
+        <!-- Calendar Grid Card -->
+        <div class="p-4 rounded-xl border space-y-3" style="background: #0f0f13; border-color: rgba(212, 175, 55, 0.3);">
+          
+          <!-- Days of Week Headers -->
+          <div class="grid grid-cols-7 text-center text-[11px] font-bold tracking-wider opacity-80" style="color: #e5c07b;">
+            <div>SU</div><div>MO</div><div>TU</div><div>WE</div><div>TH</div><div>FR</div><div>SA</div>
+          </div>
+
+          <!-- Dynamic Day Cells Grid -->
+          <div id="cal-days-grid" class="grid grid-cols-7 gap-1.5">
+            <!-- Populated via renderCalendar() -->
+          </div>
+
+          <!-- Legend -->
+          <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-2 text-[10px] opacity-75" style="border-color: rgba(212, 175, 55, 0.15);">
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-400"></span><span>Low (0-49)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-amber-400"></span><span>Moderate (50-84)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-rose-500"></span><span>High (85+)</span></div>
+            <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full border border-amber-300"></span><span>Today</span></div>
+          </div>
+        </div>
+
+        <!-- Selected Date Detailed Card -->
+        <div id="cal-selected-detail" class="p-4 rounded-xl border space-y-3" style="background: linear-gradient(180deg, #131318 0%, #0d0d10 100%); border-color: rgba(212, 175, 55, 0.35);">
+          <div class="flex items-center justify-between border-b pb-2.5" style="border-color: rgba(212, 175, 55, 0.2);">
+            <div>
+              <div class="text-[10px] uppercase font-bold tracking-wider" style="color: #d4af37;">Selected Date</div>
+              <div id="cal-detail-date" class="text-sm font-bold text-zinc-100">Select any date</div>
+            </div>
+            <div id="cal-detail-badge" class="hidden px-2.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wider">
+              --
+            </div>
+          </div>
+
+          <div id="cal-detail-body" class="text-xs space-y-2 opacity-80 leading-relaxed">
+            Click on any day in the calendar to inspect check-in reflections, mood records, and stress triage details.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Drawer Footer -->
+      <div class="p-4 border-t text-center text-xs opacity-60" style="border-color: rgba(212, 175, 55, 0.2); background: #0c0c0e;">
+        <span style="color: #e5c07b;">StressSense Calendar</span> &bull; Synchronized with alias <span id="cal-footer-student" class="font-mono font-medium text-zinc-300">student_042</span>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Main Container -->
   <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 space-y-8">
 
@@ -742,19 +903,57 @@
           <!-- Talk to a Friend -->
           <div class="space-y-1.5">
             <div class="flex items-center justify-between">
-              <label for="journal_text" class="text-xs font-medium">
-                Talk to a Friend
-              </label>
-              <span id="char-count" class="text-[11px] opacity-60 font-mono">0 characters</span>
+              <div class="flex items-center gap-2">
+                <label for="journal_text" class="text-xs font-medium">
+                  Talk to a Friend
+                </label>
+                <!-- Live Recording Indicator -->
+                <span id="speech-live-indicator" class="hidden inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-[11px] font-semibold animate-pulse">
+                  <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                  Listening... speak now
+                </span>
+              </div>
+              <div class="flex items-center gap-2.5">
+                <!-- Header Mic Toggle Button -->
+                <button
+                  type="button"
+                  id="mic-btn"
+                  onclick="toggleDictation()"
+                  title="Click to dictate using your microphone"
+                  class="px-2.5 py-1 rounded-md text-xs font-medium transition flex items-center gap-1.5 panel-subtle hover:text-white border border-transparent"
+                >
+                  <svg id="mic-icon" class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                  </svg>
+                  <span id="mic-label">Dictate</span>
+                </button>
+                <span id="char-count" class="text-[11px] opacity-60 font-mono">0 characters</span>
+              </div>
             </div>
-            <textarea
-              id="journal_text"
-              rows="4"
-              required
-              placeholder="How are you feeling today? Write about anything on your mind..."
-              class="w-full panel rounded-lg p-3 text-sm placeholder-zinc-500 focus:outline-none transition leading-relaxed"
-              oninput="updateCharCount()"
-            ></textarea>
+            
+            <div class="relative">
+              <textarea
+                id="journal_text"
+                rows="4"
+                required
+                placeholder="How are you feeling today? Write or click the microphone to speak freely about anything on your mind..."
+                class="w-full panel rounded-lg p-3 pr-11 text-sm placeholder-zinc-500 focus:outline-none transition leading-relaxed"
+                oninput="updateCharCount()"
+              ></textarea>
+              
+              <!-- Floating Corner Mic Button -->
+              <button
+                type="button"
+                id="mic-btn-floating"
+                onclick="toggleDictation()"
+                title="Dictate with voice"
+                class="absolute right-2.5 bottom-2.5 p-2 rounded-lg text-zinc-400 hover:text-zinc-100 transition bg-zinc-800/80 hover:bg-zinc-700 border border-zinc-700/60 shadow-sm"
+              >
+                <svg id="mic-icon-floating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Actions & Active Student Note -->
@@ -781,24 +980,50 @@
       <div id="results-container" class="hidden space-y-6">
 
         <!-- Crisis Notice Banner (Uniform Neutral Border, Solid Panel) -->
-        <div id="crisis-banner" class="hidden panel rounded-xl p-5">
-          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
+        <div id="crisis-banner" class="hidden panel rounded-xl p-6 border-l-4 border-l-red-500">
+          <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-5">
+            <div class="space-y-1.5 flex-1">
               <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-red-400"></span>
-                <h3 class="text-sm font-semibold">Urgent Support Available</h3>
+                <span class="relative flex h-3 w-3">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                </span>
+                <h3 class="text-base font-bold text-red-400 tracking-wide uppercase">Urgent Support Available</h3>
+                <span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-red-500/10 text-red-300 border border-red-500/20">24/7 Free & Confidential</span>
               </div>
-              <p class="text-xs opacity-80 mt-1 leading-relaxed">
-                If you are in immediate distress or having thoughts of self-harm, confidential support is available 24/7.
+              <p class="text-sm opacity-90 leading-relaxed max-w-2xl">
+                If you are in immediate distress or having overwhelming thoughts, trained counselors are available round-the-clock across India.
               </p>
             </div>
-            <div class="flex flex-wrap items-center gap-2 shrink-0">
-              <a href="tel:988" class="px-3.5 py-1.5 rounded-md text-xs font-semibold transition" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text);">
-                Call or Text 988
-              </a>
-              <a href="https://www.crisistextline.org" target="_blank" class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition">
-                Crisis Text Line (741741)
-              </a>
+            
+            <div class="flex flex-col gap-2.5 shrink-0 w-full xl:w-auto min-w-[340px]">
+              <!-- Expanded 'Call Me For Help' Sign Positioned on Top -->
+              <div class="w-full flex items-center justify-between gap-2 px-4 py-2 rounded-lg bg-red-500/15 border border-red-500/30 text-red-300">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 animate-bounce text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  <span class="text-xs font-extrabold uppercase tracking-wider">Call Me For Help (24/7)</span>
+                </div>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded bg-red-500/25 text-red-200 uppercase tracking-wider">Toll-Free</span>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+                <a href="tel:14416" class="flex-1 px-5 py-3 rounded-lg text-sm font-bold transition inline-flex items-center justify-center gap-2 shadow-md hover:scale-[1.02] active:scale-[0.98]" style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text);">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  Tele-MANAS: 14416
+                </a>
+
+                <a href="tel:18005990019" class="flex-1 px-5 py-3 rounded-lg panel-subtle text-sm font-bold transition inline-flex items-center justify-center gap-2 border hover:scale-[1.02] active:scale-[0.98]" style="border-color: var(--border);">
+                  <svg class="w-4 h-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                  </svg>
+                  KIRAN: 1800-599-0019
+                </a>
+              </div>
             </div>
           </div>
         </div>
@@ -1027,7 +1252,7 @@
   <footer class="border-t py-5 text-center text-xs opacity-60 mt-auto" style="border-color: var(--border);">
     <p>StressSense Student Wellbeing Platform.</p>
     <p class="mt-1 opacity-80">
-      National Crisis & Suicide Lifeline: 988 (Toll-Free, 24/7)
+      National Tele-Mental Health Helpline (Tele-MANAS): 14416 / 1800-891-4416 | KIRAN: 1800-599-0019 (Toll-Free 24/7)
     </p>
   </footer>
 
@@ -1086,8 +1311,231 @@
       if (e.key === 'Escape') {
         closeProfileDrawer();
         closeSleepDrawer();
+        closeCalendarDrawer();
       }
     });
+
+    // =========================================================================
+    // BLACK & GOLD THEME WELLBEING CALENDAR DRAWER
+    // =========================================================================
+    let calendarDate = new Date();
+
+    function openCalendarDrawer() {
+      const container = document.getElementById('calendar-drawer-container');
+      const panel = document.getElementById('calendar-drawer-panel');
+      const studentLabel = document.getElementById('cal-footer-student');
+      if (studentLabel) studentLabel.textContent = currentStudentId;
+      
+      container.classList.remove('pointer-events-none', 'opacity-0');
+      container.classList.add('pointer-events-auto', 'opacity-100');
+      panel.classList.remove('translate-x-full');
+      panel.classList.add('translate-x-0');
+
+      renderCalendar();
+    }
+
+    function closeCalendarDrawer() {
+      const container = document.getElementById('calendar-drawer-container');
+      const panel = document.getElementById('calendar-drawer-panel');
+      panel.classList.remove('translate-x-0');
+      panel.classList.add('translate-x-full');
+      container.classList.remove('pointer-events-auto', 'opacity-100');
+      container.classList.add('pointer-events-none', 'opacity-0');
+    }
+
+    function changeCalendarMonth(offset) {
+      calendarDate.setMonth(calendarDate.getMonth() + offset);
+      renderCalendar();
+    }
+
+    async function fetchStudentHistoryForCalendar() {
+      try {
+        const resp = await fetch('/api/history/' + encodeURIComponent(currentStudentId));
+        if (resp.ok) {
+          return await resp.json();
+        }
+      } catch (err) {
+        console.warn('Calendar history fetch error:', err);
+      }
+      return [];
+    }
+
+    async function renderCalendar() {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      const monthNames = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+      ];
+
+      const titleEl = document.getElementById('cal-month-year-title');
+      if (titleEl) titleEl.textContent = `${monthNames[month]} ${year}`;
+
+      const historyData = await fetchStudentHistoryForCalendar();
+
+      // Map entries by date key YYYY-MM-DD
+      const dateMap = {};
+      (historyData || []).forEach(item => {
+        if (item.timestamp) {
+          const dKey = item.timestamp.split('T')[0];
+          dateMap[dKey] = item;
+        }
+      });
+
+      const firstDayIndex = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      const grid = document.getElementById('cal-days-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      // Empty cells before the 1st day of month
+      for (let i = 0; i < firstDayIndex; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'cal-day-cell cal-day-empty h-10 rounded-lg opacity-20';
+        grid.appendChild(emptyCell);
+      }
+
+      let monthlyLogs = 0;
+      let totalStress = 0;
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasCheckin = dateMap[dayKey];
+        const isToday = (dayKey === todayKey);
+
+        if (hasCheckin) {
+          monthlyLogs++;
+          totalStress += (hasCheckin.stress_score ?? 50);
+        }
+
+        const cell = document.createElement('button');
+        cell.type = 'button';
+        cell.className = 'cal-day-cell h-11 rounded-lg flex flex-col items-center justify-between p-1.5 text-xs font-semibold relative border transition cursor-pointer hover:border-amber-400';
+        
+        if (isToday) {
+          cell.style.borderColor = '#e5c07b';
+          cell.style.boxShadow = '0 0 8px rgba(212, 175, 55, 0.35)';
+        } else {
+          cell.style.borderColor = 'rgba(212, 175, 55, 0.15)';
+        }
+
+        cell.style.backgroundColor = hasCheckin ? '#15151b' : '#0d0d10';
+        cell.style.color = hasCheckin ? '#f6d88c' : '#a1a1aa';
+
+        // Day Number
+        const dayNumSpan = document.createElement('span');
+        dayNumSpan.className = 'text-[11px] font-mono leading-none';
+        dayNumSpan.textContent = day;
+        cell.appendChild(dayNumSpan);
+
+        // Status indicator dot
+        const dot = document.createElement('span');
+        if (hasCheckin) {
+          const score = hasCheckin.stress_score ?? 50;
+          if (score >= 85) {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-rose-500 shadow-sm';
+          } else if (score >= 50) {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm';
+          } else {
+            dot.className = 'w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-sm';
+          }
+        } else if (isToday) {
+          dot.className = 'w-1.5 h-1.5 rounded-full border border-amber-300 animate-pulse';
+        } else {
+          dot.className = 'w-1.5 h-1.5 rounded-full opacity-0';
+        }
+        cell.appendChild(dot);
+
+        cell.onclick = () => selectCalendarDay(dayKey, day, hasCheckin);
+        grid.appendChild(cell);
+      }
+
+      // Update Summary Stats
+      const totalEl = document.getElementById('cal-stat-total');
+      if (totalEl) totalEl.textContent = monthlyLogs;
+
+      const avgEl = document.getElementById('cal-stat-avg');
+      if (avgEl) avgEl.textContent = monthlyLogs > 0 ? Math.round(totalStress / monthlyLogs) + '%' : '--';
+
+      const streakEl = document.getElementById('cal-stat-streak');
+      if (streakEl) streakEl.textContent = '🔥 ' + (historyData ? Math.min(historyData.length, 7) : 0) + 'd';
+
+      // Auto-select today or current day
+      selectCalendarDay(todayKey, today.getDate(), dateMap[todayKey]);
+    }
+
+    function selectCalendarDay(dateStr, dayNum, record) {
+      const detailDate = document.getElementById('cal-detail-date');
+      const detailBadge = document.getElementById('cal-detail-badge');
+      const detailBody = document.getElementById('cal-detail-body');
+
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      const formatted = isNaN(dateObj) ? dateStr : dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      
+      if (detailDate) detailDate.textContent = formatted;
+
+      if (record) {
+        const score = record.stress_score ?? 50;
+        const risk = record.risk_level || 'MEDIUM';
+        
+        if (detailBadge) {
+          detailBadge.classList.remove('hidden', 'bg-emerald-500/20', 'text-emerald-400', 'bg-amber-500/20', 'text-amber-400', 'bg-red-500/20', 'text-red-400');
+          if (risk === 'HIGH' || score >= 85) {
+            detailBadge.classList.add('bg-red-500/20', 'text-red-400');
+            detailBadge.textContent = `High Stress (${score}/100)`;
+          } else if (risk === 'LOW' || score < 50) {
+            detailBadge.classList.add('bg-emerald-500/20', 'text-emerald-400');
+            detailBadge.textContent = `Low Stress (${score}/100)`;
+          } else {
+            detailBadge.classList.add('bg-amber-500/20', 'text-amber-400');
+            detailBadge.textContent = `Moderate (${score}/100)`;
+          }
+        }
+
+        const journalSnippet = record.journal_text ? `"${escapeHtml(record.journal_text)}"` : 'Check-in recorded';
+        const sentiment = record.analysis?.sentiment_summary || record.sentiment_summary || '';
+
+        if (detailBody) {
+          detailBody.innerHTML = `
+            <div class="space-y-2">
+              <div class="p-2.5 rounded-lg border text-zinc-200" style="background: #111115; border-color: rgba(212, 175, 55, 0.2);">
+                <div class="text-[10px] font-bold uppercase opacity-60" style="color: #d4af37;">Mood Score</div>
+                <div class="text-sm font-semibold text-amber-200">Level ${record.mood_score || 3} / 5</div>
+              </div>
+              <div class="p-2.5 rounded-lg border text-zinc-200" style="background: #111115; border-color: rgba(212, 175, 55, 0.2);">
+                <div class="text-[10px] font-bold uppercase opacity-60" style="color: #d4af37;">Journal Reflection</div>
+                <div class="text-xs italic text-zinc-300 mt-1">${journalSnippet}</div>
+              </div>
+              ${sentiment ? `
+              <div class="p-2.5 rounded-lg border text-zinc-300" style="background: #111115; border-color: rgba(212, 175, 55, 0.2);">
+                <div class="text-[10px] font-bold uppercase opacity-60" style="color: #d4af37;">AI Clinical Insights</div>
+                <div class="text-xs mt-0.5">${escapeHtml(sentiment)}</div>
+              </div>` : ''}
+            </div>
+          `;
+        }
+      } else {
+        if (detailBadge) detailBadge.classList.add('hidden');
+        if (detailBody) {
+          detailBody.innerHTML = `
+            <div class="p-3 rounded-lg border text-center space-y-2" style="background: #111115; border-color: rgba(212, 175, 55, 0.15);">
+              <p class="text-zinc-400">No journal check-in was logged on this date.</p>
+              <button
+                type="button"
+                onclick="closeCalendarDrawer(); document.getElementById('journal_text').focus();"
+                class="px-3 py-1.5 rounded text-xs font-bold transition inline-flex items-center gap-1.5"
+                style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text);"
+              >
+                <span>Write Check-in Now</span>
+              </button>
+            </div>
+          `;
+        }
+      }
+    }
 
     // =========================================================================
     // SLEEP TRACKER SLIDER DRAWER & SMOOTH AREA CHART
@@ -1449,6 +1897,139 @@
     function updateCharCount() {
       const len = document.getElementById('journal_text').value.length;
       document.getElementById('char-count').textContent = len + ' characters';
+    }
+
+    // ---------------------------------------------------------------------------
+    // Voice Dictation (Web Speech API)
+    // ---------------------------------------------------------------------------
+    let speechRecognition = null;
+    let isDictating = false;
+    let baseDictationText = '';
+
+    function initSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        return null;
+      }
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = navigator.language || 'en-US';
+
+      recognition.onstart = function() {
+        isDictating = true;
+        updateDictationUI(true);
+      };
+
+      recognition.onresult = function(event) {
+        let interimTranscript = '';
+        let finalTranscript = '';
+
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+          const item = event.results[i];
+          if (item.isFinal) {
+            finalTranscript += item[0].transcript;
+          } else {
+            interimTranscript += item[0].transcript;
+          }
+        }
+
+        const ta = document.getElementById('journal_text');
+        const prefix = baseDictationText ? (baseDictationText + (baseDictationText.endsWith(' ') ? '' : ' ')) : '';
+        const speechPart = (finalTranscript + ' ' + interimTranscript).trim();
+        ta.value = (prefix + speechPart).trimStart();
+        updateCharCount();
+      };
+
+      recognition.onerror = function(event) {
+        console.warn('Speech recognition error:', event.error);
+        if (event.error === 'not-allowed') {
+          alert('Microphone access was denied. Please allow microphone permissions in your browser to use voice dictation.');
+        }
+        stopDictation();
+      };
+
+      recognition.onend = function() {
+        if (isDictating) {
+          stopDictation();
+        }
+      };
+
+      return recognition;
+    }
+
+    function toggleDictation() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        alert('Voice dictation is not supported in this browser. Please use Google Chrome, Microsoft Edge, or Safari.');
+        return;
+      }
+
+      if (isDictating) {
+        stopDictation();
+      } else {
+        startDictation();
+      }
+    }
+
+    function startDictation() {
+      if (!speechRecognition) {
+        speechRecognition = initSpeechRecognition();
+      }
+      if (!speechRecognition) return;
+
+      const ta = document.getElementById('journal_text');
+      baseDictationText = ta.value;
+      try {
+        speechRecognition.start();
+      } catch (err) {
+        console.warn('Recognition start error:', err);
+      }
+    }
+
+    function stopDictation() {
+      isDictating = false;
+      if (speechRecognition) {
+        try {
+          speechRecognition.stop();
+        } catch (e) {}
+      }
+      updateDictationUI(false);
+    }
+
+    function updateDictationUI(active) {
+      const liveBadge = document.getElementById('speech-live-indicator');
+      const micBtn = document.getElementById('mic-btn');
+      const micIcon = document.getElementById('mic-icon');
+      const micLabel = document.getElementById('mic-label');
+      const floatBtn = document.getElementById('mic-btn-floating');
+      const floatIcon = document.getElementById('mic-icon-floating');
+
+      if (active) {
+        if (liveBadge) liveBadge.classList.remove('hidden');
+        if (micBtn) {
+          micBtn.classList.add('bg-red-500/20', 'text-red-400', 'border-red-500/40');
+          micBtn.classList.remove('panel-subtle');
+        }
+        if (micIcon) micIcon.classList.add('text-red-400', 'animate-pulse');
+        if (micLabel) micLabel.textContent = 'Stop Mic';
+        if (floatBtn) {
+          floatBtn.classList.add('bg-red-500/20', 'text-red-400', 'border-red-500/50', 'animate-pulse');
+          floatBtn.classList.remove('text-zinc-400');
+        }
+      } else {
+        if (liveBadge) liveBadge.classList.add('hidden');
+        if (micBtn) {
+          micBtn.classList.remove('bg-red-500/20', 'text-red-400', 'border-red-500/40');
+          micBtn.classList.add('panel-subtle');
+        }
+        if (micIcon) micIcon.classList.remove('text-red-400', 'animate-pulse');
+        if (micLabel) micLabel.textContent = 'Dictate';
+        if (floatBtn) {
+          floatBtn.classList.remove('bg-red-500/20', 'text-red-400', 'border-red-500/50', 'animate-pulse');
+          floatBtn.classList.add('text-zinc-400');
+        }
+      }
     }
 
     function switchTab(tab) {

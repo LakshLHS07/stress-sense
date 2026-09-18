@@ -37,14 +37,14 @@ LLM_PROVIDER = os.getenv("LLM_PROVIDER", "mock").lower()
 
 CRISIS_RESOURCES = [
     {
-        "title": "988 Suicide & Crisis Lifeline (US)",
-        "description": "Free, confidential support 24/7. Call or text 988.",
-        "url": "https://988lifeline.org",
+        "title": "Tele-MANAS (National Mental Health Helpline)",
+        "description": "Govt. of India 24/7 toll-free mental health support. Call 14416 or 1800-891-4416.",
+        "url": "https://telemanas.mohfw.gov.in",
     },
     {
-        "title": "Crisis Text Line",
-        "description": "Text HOME to 741741 to reach a crisis counselor.",
-        "url": "https://www.crisistextline.org",
+        "title": "KIRAN Mental Health Helpline",
+        "description": "24/7 toll-free crisis helpline by Ministry of Social Justice. Call 1800-599-0019.",
+        "url": "http://www.kiranhelpline.in",
     },
 ]
 
@@ -139,7 +139,7 @@ def _safe_default(flagged: bool) -> dict:
                 "category": "Emotional & Mental",
                 "severity": "Severe" if flagged else "Moderate",
                 "immediate_remedy": "Stop reading or studying right now. Practice 4-7-8 breathing (inhale 4s, hold 7s, exhale 8s) for 3 cycles.",
-                "actionable_solution": "Reach out directly to campus counseling or call/text 988 for free confidential support.",
+                "actionable_solution": "Reach out directly to campus counseling or call Tele-MANAS (14416 / 1800-891-4416) or KIRAN (1800-599-0019) for free 24/7 confidential support.",
                 "suggested_exercise": "Box Breathing & Sensory Grounding (5 things you can see, 4 you can touch)"
             }
         ],
