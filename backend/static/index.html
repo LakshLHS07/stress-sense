@@ -805,7 +805,7 @@
           </div>
           <div class="p-3 rounded-xl border text-center" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
             <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Active Streak</div>
-            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">🔥 0d</div>
+            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">0d streak</div>
           </div>
         </div>
 
@@ -1151,151 +1151,9 @@
           <div id="problems-remedies-feed" class="space-y-3.5">
             <!-- Populated via JS -->
           </div>
-
-          <!-- Stress-Relieving Sounds & Acoustic Frequency Therapy (White, Brown, Pink Noise & Healing Frequencies) -->
-          <div id="sound-therapy-panel" class="panel panel-card-glow rounded-xl p-5 space-y-4" style="border: 1px solid rgba(212, 175, 55, 0.35);">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--border);">
-              <div class="flex items-center space-x-2.5">
-                <div class="w-8 h-8 rounded-lg panel-subtle flex items-center justify-center text-amber-400 text-base">
-                  🎧
-                </div>
-                <div>
-                  <h4 class="text-sm font-semibold flex items-center gap-2">
-                    <span>Stress-Relieving Sounds & Frequency Therapy</span>
-                    <span class="px-2 py-0.5 rounded panel-subtle text-[10px] font-mono text-amber-300 font-normal">Acoustic Reset</span>
-                  </h4>
-                  <p class="text-xs opacity-70">
-                    Scientifically proven noise colors and frequencies to quiet an overstimulated nervous system.
-                  </p>
-                </div>
-              </div>
-
-              <!-- Live Player Controls -->
-              <div class="flex items-center gap-2">
-                <div class="flex items-center gap-1.5 panel-subtle px-2.5 py-1.5 rounded-lg text-xs">
-                  <span class="opacity-60 text-[11px]">Vol</span>
-                  <input id="sound-therapy-volume" type="range" min="0" max="100" value="70" oninput="setSoundTherapyVolume(this.value)" class="w-16 h-1.5 accent-amber-400 cursor-pointer" title="Adjust sound volume">
-                </div>
-                <button
-                  type="button"
-                  id="sound-therapy-main-btn"
-                  onclick="toggleSoundTherapy()"
-                  class="px-3.5 py-1.5 rounded-lg panel-subtle text-xs font-semibold text-amber-300 hover:text-white transition flex items-center gap-1.5 shadow-sm"
-                >
-                  <span id="sound-therapy-btn-icon">▶</span>
-                  <span id="sound-therapy-btn-label">Play Sound</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Sound Selector Tabs -->
-            <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
-              <button
-                type="button"
-                onclick="selectTherapySound('brown')"
-                id="sound-tab-brown"
-                class="sound-therapy-tab active p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-amber-300">🌊 Brown Noise</span>
-                  <span class="sound-tab-indicator text-[10px] text-amber-400 font-mono">Active</span>
-                </div>
-                <p class="text-[11px] opacity-70 mt-1">Deep waterfall rumble. Quiets racing thoughts & mental overload.</p>
-              </button>
-
-              <button
-                type="button"
-                onclick="selectTherapySound('pink')"
-                id="sound-tab-pink"
-                class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-rose-300">🌧️ Pink Noise</span>
-                  <span class="sound-tab-indicator text-[10px] hidden text-rose-400 font-mono">Active</span>
-                </div>
-                <p class="text-[11px] opacity-70 mt-1">Balanced rain & rustling leaves. Clinically proven for sleep & relaxation.</p>
-              </button>
-
-              <button
-                type="button"
-                onclick="selectTherapySound('white')"
-                id="sound-tab-white"
-                class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-zinc-200">💨 White Noise</span>
-                  <span class="sound-tab-indicator text-[10px] hidden text-zinc-300 font-mono">Active</span>
-                </div>
-                <p class="text-[11px] opacity-70 mt-1">Broadband static. Masks sharp distracting noise & internal chatter.</p>
-              </button>
-
-              <button
-                type="button"
-                onclick="selectTherapySound('432hz')"
-                id="sound-tab-432hz"
-                class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-emerald-300">✨ 432 Hz Calm</span>
-                  <span class="sound-tab-indicator text-[10px] hidden text-emerald-400 font-mono">Active</span>
-                </div>
-                <p class="text-[11px] opacity-70 mt-1">Verdi natural frequency. Reduces anxiety, heart rate & nervous tension.</p>
-              </button>
-
-              <button
-                type="button"
-                onclick="selectTherapySound('528hz')"
-                id="sound-tab-528hz"
-                class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
-              >
-                <div class="flex items-center justify-between">
-                  <span class="font-semibold text-cyan-300">🔔 528 Hz Solfeggio</span>
-                  <span class="sound-tab-indicator text-[10px] hidden text-cyan-400 font-mono">Active</span>
-                </div>
-                <p class="text-[11px] opacity-70 mt-1">Solfeggio transformation tone. Stimulates parasympathetic recovery.</p>
-              </button>
-            </div>
-
-            <!-- External Streams & Playlists Link Bar -->
-            <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-3 text-xs" style="border-color: var(--border);">
-              <div class="flex flex-wrap items-center gap-2.5 text-zinc-400 text-[11px]">
-                <span class="font-medium text-zinc-300 flex items-center gap-1">
-                  <span>🔗 Stream Links:</span>
-                </span>
-                <a href="https://www.youtube.com/results?search_query=10+hours+brown+noise+for+anxiety+and+sleep" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 underline underline-offset-2 flex items-center gap-1 transition">
-                  <span>10h Brown Noise</span>
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <span>&bull;</span>
-                <a href="https://www.youtube.com/results?search_query=8+hours+pink+noise+relaxation" target="_blank" rel="noopener noreferrer" class="hover:text-rose-300 underline underline-offset-2 flex items-center gap-1 transition">
-                  <span>8h Pink Noise</span>
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <span>&bull;</span>
-                <a href="https://www.youtube.com/results?search_query=white+noise+10+hours+for+study+and+stress" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-200 underline underline-offset-2 flex items-center gap-1 transition">
-                  <span>10h White Noise</span>
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <span>&bull;</span>
-                <a href="https://www.youtube.com/results?search_query=432hz+stress+relief+deep+relaxation" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1 transition">
-                  <span>432Hz Calm Frequency</span>
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-                <span>&bull;</span>
-                <a href="https://mynoise.net/noiseMachines.php" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 underline underline-offset-2 flex items-center gap-1 transition">
-                  <span>myNoise Generator</span>
-                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                </a>
-              </div>
-
-              <div id="sound-therapy-status" class="text-[11px] font-mono text-zinc-400">
-                Ready: Brown Noise selected
-              </div>
-            </div>
-          </div>
         </div>
 
-        <!-- Sleep Tracker Biometrics & AI Correlation Card (Second last, directly above 4-4-4 breathing) -->
+        <!-- Sleep Tracker Biometrics & AI Correlation Card -->
         <div id="ai-sleep-correlation-card" class="panel panel-card-glow rounded-xl p-5 space-y-4" style="border: 1px solid rgba(234, 179, 8, 0.35);">
           
           <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--border);">
@@ -1313,7 +1171,7 @@
 
             <div class="flex items-center gap-2">
               <span id="ai-sleep-impact-badge" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold panel-subtle text-amber-400">
-                ⚡ Sleep Tracker Insights Active
+                Sleep Biometrics Synced
               </span>
               <button
                 type="button"
@@ -1364,6 +1222,152 @@
 
         </div>
 
+        <!-- Stress-Relieving Sounds & Acoustic Frequency Therapy (Placed below sleep track, clean & professional) -->
+        <div id="sound-therapy-panel" class="panel panel-card-glow rounded-xl p-5 space-y-4" style="border: 1px solid rgba(212, 175, 55, 0.35);">
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--border);">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-8 h-8 rounded-lg panel-subtle flex items-center justify-center text-amber-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                </svg>
+              </div>
+              <div>
+                <h4 class="text-sm font-semibold flex items-center gap-2">
+                  <span>Stress-Relieving Sound Therapy</span>
+                  <span class="px-2 py-0.5 rounded panel-subtle text-[10px] font-mono text-amber-300 font-normal">Acoustic Reset</span>
+                </h4>
+                <p class="text-xs opacity-70">
+                  Calibrated noise colors and therapeutic frequencies to reduce autonomic nervous system arousal.
+                </p>
+              </div>
+            </div>
+
+            <!-- Live Player Controls -->
+            <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5 panel-subtle px-2.5 py-1.5 rounded-lg text-xs">
+                <span class="opacity-60 text-[11px] font-medium">Vol</span>
+                <input id="sound-therapy-volume" type="range" min="0" max="100" value="70" oninput="setSoundTherapyVolume(this.value)" class="w-16 h-1.5 accent-amber-400 cursor-pointer" title="Adjust sound volume">
+              </div>
+              <button
+                type="button"
+                id="sound-therapy-main-btn"
+                onclick="toggleSoundTherapy()"
+                class="px-3 py-1.5 rounded-lg panel-subtle text-xs font-semibold text-amber-300 hover:text-white transition flex items-center gap-1.5 shadow-sm"
+              >
+                <span id="sound-therapy-btn-icon" class="flex items-center">
+                  <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                </span>
+                <span id="sound-therapy-btn-label">Play Sound</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Sound Selector Tabs -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <button
+              type="button"
+              onclick="selectTherapySound('brown')"
+              id="sound-tab-brown"
+              class="sound-therapy-tab active p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-amber-300">Brown Noise</span>
+                <span class="sound-tab-indicator text-[10px] text-amber-400 font-mono">Active</span>
+              </div>
+              <p class="text-[11px] opacity-70 mt-1">Deep low-frequency roll. Quiets racing thoughts and mental overload.</p>
+            </button>
+
+            <button
+              type="button"
+              onclick="selectTherapySound('pink')"
+              id="sound-tab-pink"
+              class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-rose-300">Pink Noise</span>
+                <span class="sound-tab-indicator text-[10px] hidden text-rose-400 font-mono">Active</span>
+              </div>
+              <p class="text-[11px] opacity-70 mt-1">1/f balanced spectral slope. Clinically validated for sleep and relaxation.</p>
+            </button>
+
+            <button
+              type="button"
+              onclick="selectTherapySound('white')"
+              id="sound-tab-white"
+              class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-zinc-200">White Noise</span>
+                <span class="sound-tab-indicator text-[10px] hidden text-zinc-300 font-mono">Active</span>
+              </div>
+              <p class="text-[11px] opacity-70 mt-1">Broadband static. Shields focus from sudden ambient noise disruptions.</p>
+            </button>
+
+            <button
+              type="button"
+              onclick="selectTherapySound('432hz')"
+              id="sound-tab-432hz"
+              class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-emerald-300">432 Hz Calm</span>
+                <span class="sound-tab-indicator text-[10px] hidden text-emerald-400 font-mono">Active</span>
+              </div>
+              <p class="text-[11px] opacity-70 mt-1">Verdi natural pitch. Relaxes sympathetic tone and muscular tension.</p>
+            </button>
+
+            <button
+              type="button"
+              onclick="selectTherapySound('528hz')"
+              id="sound-tab-528hz"
+              class="sound-therapy-tab p-2.5 rounded-lg panel-subtle text-left transition flex flex-col justify-between"
+            >
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-cyan-300">528 Hz Solfeggio</span>
+                <span class="sound-tab-indicator text-[10px] hidden text-cyan-400 font-mono">Active</span>
+              </div>
+              <p class="text-[11px] opacity-70 mt-1">Transformation tone. Encourages emotional release and parasympathetic recovery.</p>
+            </button>
+          </div>
+
+          <!-- External Streams & Playlists Link Bar -->
+          <div class="pt-2 border-t flex flex-wrap items-center justify-between gap-3 text-xs" style="border-color: var(--border);">
+            <div class="flex flex-wrap items-center gap-2.5 text-zinc-400 text-[11px]">
+              <span class="font-medium text-zinc-300 flex items-center gap-1">
+                <span>External Audio Streams:</span>
+              </span>
+              <a href="https://www.youtube.com/results?search_query=10+hours+brown+noise+for+anxiety+and+sleep" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 underline underline-offset-2 flex items-center gap-1 transition">
+                <span>10h Brown Noise</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <span>&bull;</span>
+              <a href="https://www.youtube.com/results?search_query=8+hours+pink+noise+relaxation" target="_blank" rel="noopener noreferrer" class="hover:text-rose-300 underline underline-offset-2 flex items-center gap-1 transition">
+                <span>8h Pink Noise</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <span>&bull;</span>
+              <a href="https://www.youtube.com/results?search_query=white+noise+10+hours+for+study+and+stress" target="_blank" rel="noopener noreferrer" class="hover:text-zinc-200 underline underline-offset-2 flex items-center gap-1 transition">
+                <span>10h White Noise</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <span>&bull;</span>
+              <a href="https://www.youtube.com/results?search_query=432hz+stress+relief+deep+relaxation" target="_blank" rel="noopener noreferrer" class="hover:text-emerald-300 underline underline-offset-2 flex items-center gap-1 transition">
+                <span>432Hz Calm Frequency</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+              <span>&bull;</span>
+              <a href="https://mynoise.net/noiseMachines.php" target="_blank" rel="noopener noreferrer" class="hover:text-amber-300 underline underline-offset-2 flex items-center gap-1 transition">
+                <span>myNoise Generator</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              </a>
+            </div>
+
+            <div id="sound-therapy-status" class="text-[11px] font-mono text-zinc-400">
+              Ready: Brown Noise selected
+            </div>
+          </div>
+        </div>
+
         <!-- Breathing Reset Protocol -->
         <div class="panel panel-card-glow rounded-xl p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-4">
@@ -1379,7 +1383,9 @@
                 class="px-2.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition flex items-center gap-1.5 text-zinc-300"
                 title="Toggle audio guide sound effects"
               >
-                <span id="breathing-sound-icon">🔊</span>
+                <span id="breathing-sound-icon" class="flex items-center">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>
+                </span>
                 <span id="breathing-sound-label">Sound On</span>
               </button>
               <button
@@ -1400,7 +1406,7 @@
               <span id="breathing-phase-text" class="relative z-10 text-xs font-medium uppercase tracking-wider text-center">Inhale (4s)</span>
             </div>
             <p id="breathing-sound-cue" class="text-[11px] font-mono text-center text-amber-400 transition-opacity">
-              ♪ Rising Harmonic Swell
+              Rising Harmonic Swell (210Hz - 360Hz)
             </p>
             <p class="text-xs opacity-70 text-center max-w-sm">
               Inhale smoothly (4s) &bull; Hold lungs full (4s) &bull; Exhale completely (4s) &bull; Hold empty (4s)
@@ -1667,7 +1673,7 @@
       if (avgEl) avgEl.textContent = monthlyLogs > 0 ? Math.round(totalStress / monthlyLogs) + '%' : '--';
 
       const streakEl = document.getElementById('cal-stat-streak');
-      if (streakEl) streakEl.textContent = '🔥 ' + (historyData ? Math.min(historyData.length, 7) : 0) + 'd';
+      if (streakEl) streakEl.textContent = (historyData ? Math.min(historyData.length, 7) : 0) + 'd streak';
 
       // Auto-select today or current day
       selectCalendarDay(todayKey, today.getDate(), dateMap[todayKey]);
@@ -1876,7 +1882,7 @@
       const btn = document.getElementById('sleep-update-btn');
       if (btn) {
         const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<span>✓ Saved! Graph & Analytics Updated</span>';
+        btn.innerHTML = '<span class="flex items-center justify-center gap-1.5"><svg class="w-4 h-4 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg><span>Saved! Graph & Analytics Updated</span></span>';
         btn.style.backgroundColor = '#16a34a';
         btn.style.color = '#ffffff';
         setTimeout(() => {
@@ -2471,50 +2477,50 @@
 
             <!-- Quick Stress-Relief Sound Bar inside Problem Card -->
             <div class="panel-subtle rounded-lg px-3 py-2 flex flex-wrap items-center justify-between gap-2 text-xs">
-              <div class="flex items-center gap-1.5 opacity-80">
-                <span class="text-sm">🎧</span>
-                <span class="font-medium text-[11px]">Stress-Relief Soundscape:</span>
+              <div class="flex items-center gap-2 opacity-80">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
+                <span class="font-medium text-[11px] uppercase tracking-wider text-zinc-300">Targeted Soundscape:</span>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
                 <button
                   type="button"
                   onclick="quickPlayTherapySound('brown')"
-                  class="px-2 py-0.5 rounded panel-subtle text-[11px] font-medium text-amber-300 hover:text-white transition flex items-center gap-1"
+                  class="px-2.5 py-1 rounded panel-subtle text-[11px] font-medium text-amber-300 hover:text-white transition"
                   title="Play Brown Noise to quiet racing thoughts"
                 >
-                  <span>🌊 Brown Noise</span>
+                  Brown Noise
                 </button>
                 <button
                   type="button"
                   onclick="quickPlayTherapySound('pink')"
-                  class="px-2 py-0.5 rounded panel-subtle text-[11px] font-medium text-rose-300 hover:text-white transition flex items-center gap-1"
-                  title="Play Pink Noise for relaxation & sleep"
+                  class="px-2.5 py-1 rounded panel-subtle text-[11px] font-medium text-rose-300 hover:text-white transition"
+                  title="Play Pink Noise for relaxation and sleep"
                 >
-                  <span>🌧️ Pink Noise</span>
+                  Pink Noise
                 </button>
                 <button
                   type="button"
                   onclick="quickPlayTherapySound('white')"
-                  class="px-2 py-0.5 rounded panel-subtle text-[11px] font-medium text-zinc-300 hover:text-white transition flex items-center gap-1"
-                  title="Play White Noise to block noise & chatter"
+                  class="px-2.5 py-1 rounded panel-subtle text-[11px] font-medium text-zinc-300 hover:text-white transition"
+                  title="Play White Noise to block noise and chatter"
                 >
-                  <span>💨 White Noise</span>
+                  White Noise
                 </button>
                 <button
                   type="button"
                   onclick="quickPlayTherapySound('432hz')"
-                  class="px-2 py-0.5 rounded panel-subtle text-[11px] font-medium text-emerald-300 hover:text-white transition flex items-center gap-1"
+                  class="px-2.5 py-1 rounded panel-subtle text-[11px] font-medium text-emerald-300 hover:text-white transition"
                   title="Play 432 Hz Calm Frequency"
                 >
-                  <span>✨ 432 Hz</span>
+                  432 Hz
                 </button>
                 <button
                   type="button"
                   onclick="quickPlayTherapySound('528hz')"
-                  class="px-2 py-0.5 rounded panel-subtle text-[11px] font-medium text-cyan-300 hover:text-white transition flex items-center gap-1"
+                  class="px-2.5 py-1 rounded panel-subtle text-[11px] font-medium text-cyan-300 hover:text-white transition"
                   title="Play 528 Hz Solfeggio Frequency"
                 >
-                  <span>🔔 528 Hz</span>
+                  528 Hz
                 </button>
               </div>
             </div>
@@ -2733,11 +2739,11 @@
       const statusEl = document.getElementById('sound-therapy-status');
 
       if (isTherapyPlaying) {
-        if (btnIcon) btnIcon.textContent = '⏸';
+        if (btnIcon) btnIcon.innerHTML = '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
         if (btnLabel) btnLabel.textContent = 'Pause Sound';
         startTherapySound(currentTherapySound);
       } else {
-        if (btnIcon) btnIcon.textContent = '▶';
+        if (btnIcon) btnIcon.innerHTML = '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
         if (btnLabel) btnLabel.textContent = 'Play Sound';
         stopCurrentTherapySound();
         if (statusEl) statusEl.textContent = 'Sound paused';
@@ -2780,11 +2786,11 @@
       const label = document.getElementById('breathing-sound-label');
       const cue = document.getElementById('breathing-sound-cue');
       if (isBreathingSoundMuted) {
-        if (icon) icon.textContent = '🔇';
+        if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5 text-zinc-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /><path stroke-linecap="round" stroke-linejoin="round" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2" /></svg>';
         if (label) label.textContent = 'Muted';
         if (cue) cue.classList.add('opacity-40');
       } else {
-        if (icon) icon.textContent = '🔊';
+        if (icon) icon.innerHTML = '<svg class="w-3.5 h-3.5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>';
         if (label) label.textContent = 'Sound On';
         if (cue) cue.classList.remove('opacity-40');
         getBreathingAudioContext();
@@ -2939,7 +2945,7 @@
 
         let cycleTime = 0;
         text.textContent = 'Inhale... (4s)';
-        if (cue) cue.textContent = '♪ Rising Harmonic Swell';
+        if (cue) cue.textContent = 'Rising Harmonic Swell (210Hz - 360Hz)';
         playBreathingSound('inhale');
 
         breathingInterval = setInterval(() => {
@@ -2948,25 +2954,25 @@
 
           if (cycleTime === 0) {
             text.textContent = `Inhale... (${secInPhase}s)`;
-            if (cue) cue.textContent = '♪ Rising Harmonic Swell';
+            if (cue) cue.textContent = 'Rising Harmonic Swell (210Hz - 360Hz)';
             playBreathingSound('inhale');
           } else if (cycleTime < 4) {
             text.textContent = `Inhale... (${secInPhase}s)`;
           } else if (cycleTime === 4) {
             text.textContent = `Hold breath (${secInPhase}s)`;
-            if (cue) cue.textContent = '♪ Singing Bowl Chime (528Hz)';
+            if (cue) cue.textContent = 'Tibetan Singing Bowl Bell (528Hz)';
             playBreathingSound('hold-full');
           } else if (cycleTime < 8) {
             text.textContent = `Hold breath (${secInPhase}s)`;
           } else if (cycleTime === 8) {
             text.textContent = `Slow Exhale (${secInPhase}s)`;
-            if (cue) cue.textContent = '♪ Descending Release & Calming Sigh';
+            if (cue) cue.textContent = 'Descending Release & Breath Whoosh';
             playBreathingSound('exhale');
           } else if (cycleTime < 12) {
             text.textContent = `Slow Exhale (${secInPhase}s)`;
           } else if (cycleTime === 12) {
             text.textContent = `Hold empty (${secInPhase}s)`;
-            if (cue) cue.textContent = '♪ Deep Stillness Resonance (174Hz)';
+            if (cue) cue.textContent = 'Stillness Resonance (174Hz)';
             playBreathingSound('hold-empty');
           } else {
             text.textContent = `Hold empty (${secInPhase}s)`;
