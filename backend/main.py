@@ -126,5 +126,24 @@ def get_history(student_id: str):
 
 
 @app.get("/api/counselor/flags")
+@app.get("/api/insights/alerts")
 def get_flags():
     return database.get_flagged_entries()
+
+
+@app.post("/api/insights/review")
+def save_review(payload: dict = Body(...)):
+    record_id = payload.get("id") or payload.get("record_id") or payload.get("timestamp") or payload.get("date")
+    action_taken = payload.get("action_taken", "").strip()
+    outcome = payload.get("outcome", "helped_lot")  # "helped_lot" | "helped_moderate" | "no_change"
+    status = payload.get("status", "resolved")
+    
+    if not record_id:
+        raise HTTPException(status_code=400, detail="Missing record id")
+    if not action_taken:
+        raise HTTPException(status_code=400, detail="Please describe the action taken")
+        
+    updated = database.save_alert_review(record_id, action_taken, outcome, status)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Alert record not found")
+    return {"status": "ok", "record": updated}

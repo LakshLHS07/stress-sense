@@ -278,13 +278,13 @@
       <!-- Controls: Navigation Tabs & Profile & Dark/Light Switch -->
       <div class="flex items-center gap-2.5">
         
-        <!-- Navigation Tabs (Assessment and Counselor Queue) -->
+        <!-- Navigation Tabs (Assessment and Insights) -->
         <nav class="flex items-center panel p-1 rounded-lg text-xs font-medium">
           <button id="tab-btn-checkin" onclick="switchTab('checkin')" class="px-3.5 py-1.5 rounded-md shadow-sm transition" style="background-color: var(--tab-active-bg); color: var(--tab-active-text);">
             Assessment & Remedies
           </button>
           <button id="tab-btn-counselor" onclick="switchTab('counselor')" class="px-3.5 py-1.5 rounded-md transition flex items-center gap-1.5" style="color: var(--text-muted);">
-            Counselor Queue
+            Insights
             <span id="flag-counter-pill" class="hidden px-1.5 py-0.2 rounded panel text-red-400 text-[10px] font-mono">0</span>
           </button>
         </nav>
@@ -1419,15 +1419,15 @@
     <section id="tab-counselor" class="hidden space-y-6">
       <div class="panel panel-card-glow p-5 rounded-xl flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-base font-semibold">Counselor Review Queue</h2>
-          <p class="text-xs opacity-70 mt-0.5">High-priority alerts where automated analysis flagged urgent distress.</p>
+          <h2 class="text-base font-semibold">Wellbeing Insights & Triage Hub</h2>
+          <p class="text-xs opacity-70 mt-0.5">High-priority student insights, acute distress triage, and clinical flags.</p>
         </div>
         <button
           type="button"
           onclick="loadCounselorFlags()"
           class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
         >
-          Refresh Alerts
+          Refresh Insights
         </button>
       </div>
 
@@ -3315,23 +3315,31 @@
       }
     }
 
-    // Counselor Flags Loader
+    // =========================================================================
+    // WELLBEING INSIGHTS & CRITICAL ALERTS REVIEW MODULE
+    // =========================================================================
     async function loadCounselorFlags() {
+      return await loadInsightsAlerts();
+    }
+
+    async function loadInsightsAlerts() {
       const feed = document.getElementById('counselor-flags-list');
-      feed.innerHTML = '<div class="text-center py-8 text-xs opacity-60">Loading flagged entries...</div>';
+      if (!feed) return;
+      feed.innerHTML = '<div class="text-center py-8 text-xs opacity-60">Loading critical alerts and wellbeing insights...</div>';
 
       try {
-        const resp = await fetch('/api/counselor/flags');
-        if (!resp.ok) throw new Error('Could not fetch counselor flags');
+        const resp = await fetch('/api/insights/alerts');
+        if (!resp.ok) throw new Error('Could not fetch insights alerts');
         const list = await resp.json();
 
         updateFlagCounter(list.length);
 
         if (!list || list.length === 0) {
           feed.innerHTML = `
-            <div class="panel p-8 rounded-xl text-center text-xs space-y-1 opacity-70">
-              <p class="font-semibold">Queue Empty</p>
-              <p>There are no active urgent counselor flags.</p>
+            <div class="panel p-8 rounded-xl text-center text-xs space-y-1.5 opacity-70">
+              <div class="w-10 h-10 rounded-full mx-auto flex items-center justify-center bg-emerald-500/15 text-emerald-400 text-lg">✓</div>
+              <p class="font-semibold text-zinc-100 text-sm">No Urgent Distress Flags</p>
+              <p class="text-zinc-400">All student check-in reflections are within balanced wellbeing thresholds.</p>
             </div>
           `;
           return;
@@ -3340,31 +3348,169 @@
         feed.innerHTML = '';
         list.slice().reverse().forEach((flag, idx) => {
           const card = document.createElement('div');
-          card.className = 'panel p-5 rounded-xl space-y-3';
+          const alertId = flag.id || `alert_${idx}`;
+          const isResolved = flag.review && (flag.review.status === 'resolved');
+          const hasReview = Boolean(flag.review && flag.review.action_taken);
+
+          card.className = `panel panel-card-glow p-5 rounded-xl space-y-4 border-l-4 ${isResolved ? 'border-l-emerald-500' : 'border-l-red-500'}`;
+
+          let outcomeBadgeHtml = '';
+          if (hasReview) {
+            const out = flag.review.outcome;
+            if (out === 'helped_lot') {
+              outcomeBadgeHtml = '<span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🟢 Helped a Lot • Significant Relief</span>';
+            } else if (out === 'helped_moderate') {
+              outcomeBadgeHtml = '<span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-500/30">🟡 Helped Moderately • Partial Relief</span>';
+            } else {
+              outcomeBadgeHtml = '<span class="px-2.5 py-0.5 rounded text-[11px] font-semibold bg-zinc-500/20 text-zinc-300 border border-zinc-500/30">⚪ Minimal Change • Continued Support</span>';
+            }
+          }
 
           card.innerHTML = `
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2" style="border-color: var(--border);">
-              <div class="flex items-center space-x-2">
-                <span class="panel-subtle px-2 py-0.5 rounded font-mono text-xs">
+            <!-- Alert Header -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3" style="border-color: var(--border);">
+              <div class="flex items-center space-x-2.5">
+                <span class="w-2.5 h-2.5 rounded-full ${isResolved ? 'bg-emerald-400' : 'bg-red-400 animate-pulse'}"></span>
+                <span class="panel-subtle px-2 py-0.5 rounded font-mono text-xs font-semibold">
                   ${escapeHtml(flag.student_id)}
                 </span>
                 <span class="text-xs opacity-60 font-mono">${escapeHtml(flag.date)}</span>
               </div>
-              <span class="panel-subtle px-2.5 py-0.5 rounded text-red-400 text-xs font-semibold uppercase tracking-wider">
-                ${escapeHtml(flag.risk_level)} RISK (${flag.stress_score || 85}/100)
-              </span>
+              <div class="flex items-center gap-2">
+                <span class="panel-subtle px-2.5 py-0.5 rounded text-xs font-semibold uppercase tracking-wider ${isResolved ? 'text-emerald-400' : 'text-red-400'}">
+                  ${escapeHtml(flag.risk_level)} RISK (${flag.stress_score || 85}/100)
+                </span>
+                <span class="px-2.5 py-0.5 rounded text-[10px] font-mono font-bold uppercase tracking-wider ${isResolved ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40' : 'bg-red-500/20 text-red-300 border border-red-500/40'}">
+                  ${isResolved ? '✓ Reviewed & Logged' : '⚡ Action Required'}
+                </span>
+              </div>
             </div>
 
-            <div class="panel-subtle p-3 rounded-lg">
-              <span class="text-[10px] uppercase font-semibold opacity-60 block mb-1">Journal Excerpt:</span>
-              <p class="text-xs opacity-90 leading-relaxed italic">
+            <!-- Student Reflection -->
+            <div class="panel-subtle p-3.5 rounded-lg space-y-1">
+              <span class="text-[10px] uppercase font-bold opacity-60 block" style="color: #d4af37;">Journal Check-in Reflection:</span>
+              <p class="text-xs opacity-95 leading-relaxed italic text-zinc-200">
                 "${escapeHtml(flag.journal_text)}"
               </p>
             </div>
 
-            <div class="panel-subtle p-3 rounded-lg space-y-1">
-              <span class="text-[10px] uppercase font-semibold opacity-60 block">Recommended Action:</span>
-              <p class="text-xs opacity-90">${escapeHtml(flag.recommended_action)}</p>
+            <!-- Triage Priority -->
+            <div class="panel-subtle p-3 rounded-lg space-y-1 border" style="border-color: var(--border);">
+              <span class="text-[10px] uppercase font-bold opacity-75 block text-amber-300">Recommended Clinical Strategy:</span>
+              <p class="text-xs opacity-90">${escapeHtml(flag.recommended_action || 'Engage acute decompression circuit breaker and seek counselor support.')}</p>
+            </div>
+
+            <!-- Action Taken & Review Module -->
+            <div class="pt-2 border-t space-y-2.5" style="border-color: var(--border);">
+              
+              ${hasReview ? `
+                <!-- Display Existing Review -->
+                <div class="p-3.5 rounded-lg border space-y-2" style="background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3);">
+                  <div class="flex flex-wrap items-center justify-between gap-2">
+                    <span class="text-xs font-bold text-emerald-300 flex items-center gap-1.5">
+                      <svg class="w-4 h-4 text-emerald-400 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      Logged Recovery Action
+                    </span>
+                    ${outcomeBadgeHtml}
+                  </div>
+                  <p class="text-xs text-zinc-200 leading-relaxed font-medium">
+                    ${escapeHtml(flag.review.action_taken)}
+                  </p>
+                  <div class="flex items-center justify-between pt-1 text-[10px] opacity-60 font-mono">
+                    <span>Logged at: ${flag.review.reviewed_at ? flag.review.reviewed_at.split('T')[0] : 'Recorded'}</span>
+                    <button
+                      type="button"
+                      onclick="toggleReviewEdit('${alertId}')"
+                      class="hover:text-amber-300 underline underline-offset-2 transition"
+                    >
+                      ✏️ Edit Action Log
+                    </button>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Review & Action Log Form -->
+              <div id="review-form-container-${alertId}" class="${hasReview ? 'hidden' : ''} p-3.5 rounded-lg panel-subtle border space-y-3" style="border-color: rgba(212, 175, 55, 0.25);">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    Review Critical Alert & Log What You Did
+                  </span>
+                  ${hasReview ? `
+                    <button type="button" onclick="toggleReviewEdit('${alertId}')" class="text-[10px] text-zinc-400 hover:text-zinc-200">
+                      Cancel
+                    </button>
+                  ` : ''}
+                </div>
+
+                <!-- Quick Action Tags -->
+                <div>
+                  <span class="text-[10px] font-semibold opacity-70 block mb-1.5 text-zinc-400">Quick Insert Actions:</span>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button type="button" onclick="appendActionText('${alertId}', 'Practiced 4-4-4-4 Box Breathing')" class="px-2 py-0.5 rounded panel-subtle text-[11px] hover:text-amber-300 transition border border-white/5">
+                      🫁 4-4-4-4 Box Breathing
+                    </button>
+                    <button type="button" onclick="appendActionText('${alertId}', 'Listened to feel-good Spotify music')" class="px-2 py-0.5 rounded panel-subtle text-[11px] hover:text-emerald-300 transition border border-white/5">
+                      🎵 Listened to Spotify
+                    </button>
+                    <button type="button" onclick="appendActionText('${alertId}', 'Requested assignment deadline extension')" class="px-2 py-0.5 rounded panel-subtle text-[11px] hover:text-amber-300 transition border border-white/5">
+                      📝 Asked for Extension
+                    </button>
+                    <button type="button" onclick="appendActionText('${alertId}', 'Spoke with campus counselor / peer advisor')" class="px-2 py-0.5 rounded panel-subtle text-[11px] hover:text-amber-300 transition border border-white/5">
+                      🗣️ Spoke to Counselor
+                    </button>
+                    <button type="button" onclick="appendActionText('${alertId}', 'Took mandatory 8-hour sleep recovery')" class="px-2 py-0.5 rounded panel-subtle text-[11px] hover:text-indigo-300 transition border border-white/5">
+                      🌙 8h Sleep Recovery
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Action Notes Textarea -->
+                <div>
+                  <label class="text-[10px] font-semibold opacity-70 block mb-1">What action did you take about this distress alert?</label>
+                  <textarea
+                    id="action-input-${alertId}"
+                    rows="2"
+                    placeholder="Describe what intervention or step you took (e.g. took a break, did box breathing, spoke with peer, played music)..."
+                    class="w-full text-xs p-2.5 rounded-lg panel-subtle border focus:border-amber-400 transition"
+                    style="border-color: var(--border); resize: vertical;"
+                  >${hasReview ? escapeHtml(flag.review.action_taken || '') : ''}</textarea>
+                </div>
+
+                <!-- Did it help? Outcome Radio Options -->
+                <div>
+                  <label class="text-[10px] font-semibold opacity-70 block mb-1.5">Did this action help relieve your distress?</label>
+                  <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <label class="flex items-center gap-2 p-2 rounded-lg panel-subtle cursor-pointer border hover:border-emerald-500/40 transition" style="border-color: var(--border);">
+                      <input type="radio" name="outcome-${alertId}" value="helped_lot" ${(!hasReview || flag.review.outcome === 'helped_lot') ? 'checked' : ''} class="accent-emerald-500">
+                      <span class="text-xs font-medium text-emerald-300">🟢 Helped a Lot</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-2 rounded-lg panel-subtle cursor-pointer border hover:border-amber-500/40 transition" style="border-color: var(--border);">
+                      <input type="radio" name="outcome-${alertId}" value="helped_moderate" ${(hasReview && flag.review.outcome === 'helped_moderate') ? 'checked' : ''} class="accent-amber-500">
+                      <span class="text-xs font-medium text-amber-300">🟡 Moderately</span>
+                    </label>
+                    <label class="flex items-center gap-2 p-2 rounded-lg panel-subtle cursor-pointer border hover:border-zinc-500/40 transition" style="border-color: var(--border);">
+                      <input type="radio" name="outcome-${alertId}" value="no_change" ${(hasReview && flag.review.outcome === 'no_change') ? 'checked' : ''} class="accent-zinc-500">
+                      <span class="text-xs font-medium text-zinc-300">⚪ Minimal / Needed More</span>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-between pt-1">
+                  <span id="save-status-${alertId}" class="text-[11px] font-mono text-zinc-400"></span>
+                  <button
+                    type="button"
+                    onclick="submitAlertReview('${alertId}')"
+                    class="px-4 py-2 rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-sm"
+                    style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text);"
+                  >
+                    <span>Save Action & Outcome Log</span>
+                  </button>
+                </div>
+
+              </div>
+
             </div>
           `;
           feed.appendChild(card);
@@ -3375,11 +3521,83 @@
       }
     }
 
+    function toggleReviewEdit(alertId) {
+      const form = document.getElementById('review-form-container-' + alertId);
+      if (form) {
+        form.classList.toggle('hidden');
+      }
+    }
+
+    function appendActionText(alertId, text) {
+      const input = document.getElementById('action-input-' + alertId);
+      if (!input) return;
+      if (input.value.trim().length > 0) {
+        input.value = input.value.trim() + ', ' + text;
+      } else {
+        input.value = text;
+      }
+      input.focus();
+    }
+
+    async function submitAlertReview(alertId) {
+      const input = document.getElementById('action-input-' + alertId);
+      const statusEl = document.getElementById('save-status-' + alertId);
+      const actionText = input ? input.value.trim() : '';
+      
+      const outcomeRadios = document.querySelectorAll(`input[name="outcome-${alertId}"]:checked`);
+      const outcomeVal = (outcomeRadios.length > 0) ? outcomeRadios[0].value : 'helped_lot';
+
+      if (!actionText) {
+        if (statusEl) {
+          statusEl.textContent = '⚠️ Please enter what action you took.';
+          statusEl.className = 'text-[11px] font-mono text-amber-400';
+        }
+        return;
+      }
+
+      if (statusEl) {
+        statusEl.textContent = 'Saving...';
+        statusEl.className = 'text-[11px] font-mono text-zinc-400';
+      }
+
+      try {
+        const resp = await fetch('/api/insights/review', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: alertId,
+            action_taken: actionText,
+            outcome: outcomeVal,
+            status: 'resolved'
+          })
+        });
+
+        if (!resp.ok) {
+          throw new Error('Server returned ' + resp.status);
+        }
+
+        if (statusEl) {
+          statusEl.textContent = '✓ Saved successfully!';
+          statusEl.className = 'text-[11px] font-mono text-emerald-400 font-bold';
+        }
+
+        setTimeout(() => {
+          loadInsightsAlerts();
+        }, 600);
+
+      } catch (err) {
+        if (statusEl) {
+          statusEl.textContent = 'Error: ' + err.message;
+          statusEl.className = 'text-[11px] font-mono text-red-400';
+        }
+      }
+    }
+
     async function updateFlagCounter(count) {
       const pill = document.getElementById('flag-counter-pill');
       if (count === undefined) {
         try {
-          const resp = await fetch('/api/counselor/flags');
+          const resp = await fetch('/api/insights/alerts');
           if (resp.ok) {
             const list = await resp.json();
             count = list.length;

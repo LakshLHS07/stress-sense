@@ -8,7 +8,7 @@ without touching main.py, since main.py only calls the functions below.
 """
 
 from datetime import datetime, timezone, timedelta
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 # Each record: {student_id, date, timestamp, journal_text, mood_score, risk_level,
 #               stress_score, stress_level, primary_stressors, sentiment_summary,
@@ -77,6 +77,7 @@ def _seed_initial_records():
     for offset, student_id, mood, stress, risk, text, problems in seed_days:
         dt = now - timedelta(days=offset)
         _records.append({
+            "id": f"rec_{student_id}_{int(dt.timestamp())}_{offset}",
             "student_id": student_id,
             "date": dt.strftime("%Y-%m-%d"),
             "timestamp": dt.isoformat(),
@@ -91,7 +92,13 @@ def _seed_initial_records():
             "flag_for_counselor": (risk == "HIGH"),
             "identified_problems": problems,
             "coping_resources": [],
-            "sleep_insights": None
+            "sleep_insights": None,
+            "review": {
+                "action_taken": "Practiced 4-4-4-4 Box Breathing and listened to Spotify mood booster playlist.",
+                "outcome": "helped_lot",
+                "status": "resolved",
+                "reviewed_at": (now - timedelta(days=offset, hours=-2)).isoformat()
+            } if (risk == "HIGH" and offset == 12) else None
         })
 
 _seed_initial_records()
@@ -112,10 +119,12 @@ def save_sleep_history(student_id: str, records: List[Dict]) -> None:
 
 def save_checkin(student_id: str, journal_text: str, mood_score: int, analysis: dict) -> None:
     stress_info = analysis.get("stress_assessment", {})
+    now_dt = datetime.now(timezone.utc)
     _records.append({
+        "id": f"rec_{student_id}_{int(now_dt.timestamp())}",
         "student_id": student_id,
-        "date": datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "date": now_dt.strftime("%Y-%m-%d"),
+        "timestamp": now_dt.isoformat(),
         "journal_text": journal_text,
         "mood_score": mood_score,
         "risk_level": analysis.get("risk_level", "LOW"),
@@ -128,12 +137,28 @@ def save_checkin(student_id: str, journal_text: str, mood_score: int, analysis: 
         "identified_problems": analysis.get("identified_problems", []),
         "coping_resources": analysis.get("coping_resources", []),
         "sleep_insights": analysis.get("sleep_insights"),
+        "review": None,
     })
+
+
+def save_alert_review(record_id: str, action_taken: str, outcome: str, status: str = "resolved") -> Optional[Dict]:
+    now_iso = datetime.now(timezone.utc).isoformat()
+    for r in _records:
+        if r.get("id") == record_id or r.get("timestamp") == record_id or (r.get("date") == record_id and r.get("flag_for_counselor")):
+            r["review"] = {
+                "action_taken": action_taken,
+                "outcome": outcome,
+                "status": status,
+                "reviewed_at": now_iso,
+            }
+            return r
+    return None
 
 
 def get_history_for_student(student_id: str) -> List[Dict]:
     return [
         {
+            "id": r.get("id", f"rec_{r.get('date')}"),
             "date": r["date"],
             "timestamp": r.get("timestamp") or r["date"],
             "journal_text": r.get("journal_text", ""),
@@ -148,6 +173,7 @@ def get_history_for_student(student_id: str) -> List[Dict]:
             "recommended_action": r.get("recommended_action", ""),
             "sentiment_summary": r.get("sentiment_summary", ""),
             "sleep_insights": r.get("sleep_insights"),
+            "review": r.get("review"),
         }
         for r in _records
         if r["student_id"] == student_id
@@ -157,14 +183,17 @@ def get_history_for_student(student_id: str) -> List[Dict]:
 def get_flagged_entries() -> List[Dict]:
     return [
         {
+            "id": r.get("id", f"rec_{r['student_id']}_{r['date']}"),
             "student_id": r["student_id"],
             "date": r["date"],
+            "timestamp": r.get("timestamp") or r["date"],
             "journal_text": r["journal_text"],
             "risk_level": r["risk_level"],
             "stress_score": r.get("stress_score", 85),
             "recommended_action": r["recommended_action"],
             "identified_problems": r.get("identified_problems", []),
             "sleep_insights": r.get("sleep_insights"),
+            "review": r.get("review"),
         }
         for r in _records
         if r["flag_for_counselor"]
