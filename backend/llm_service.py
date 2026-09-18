@@ -293,80 +293,99 @@ def _call_mock(journal_text: str, mood_score: int) -> dict:
             })
 
     # =========================================================================
-    # DYNAMIC MULTI-FACTOR CLINICAL STRESS SCORING ENGINE
+    # WIDE-DYNAMIC-RANGE NATURAL LANGUAGE STRESS SCORING ENGINE
     # =========================================================================
-    # 1. Base score derived from self-reported state (mood score 1 to 5)
-    mood_bases = {1: 86.0, 2: 68.0, 3: 50.0, 4: 32.0, 5: 14.0}
-    calculated_score = mood_bases.get(mood_score, 50.0)
+    # Clean words and tokens
+    words = [re.sub(r'[^\w]', '', w) for w in text_lower.split()]
+    words = [w for w in words if w]
+    total_word_count = max(1, len(words))
 
-    # 2. Emotional Lexicon Analysis
-    # High-distress emotional markers (+5.5 to +8.5 pts)
-    severe_markers = [
-        "hopeless", "pointless", "unbearable", "breaking down", "panicking", "panic",
-        "crying", "drowning", "suffocating", "paralyzed", "desperate", "terrified",
-        "falling apart", "nightmare", "empty", "ruined", "can't take it", "give up",
-        "better off", "cannot do this", "worthless", "can't go on"
-    ]
-    for w in severe_markers:
-        if w in text_lower:
-            calculated_score += 7.0
+    # Mood anchor (baseline prior, but journal text has strong authority to override)
+    mood_prior = {1: 88.0, 2: 68.0, 3: 50.0, 4: 32.0, 5: 14.0}.get(mood_score, 50.0)
 
-    # Moderate distress & strain markers (+3.0 to +4.5 pts)
-    moderate_markers = [
-        "overwhelm", "overwhelmed", "anxious", "anxiety", "stressed", "stress",
-        "insomnia", "sleepless", "exhausted", "exhaustion", "failing", "burnout",
-        "drained", "miserable", "stuck", "worried", "pressured", "dread", "scared",
-        "can't focus", "late", "behind", "struggling", "trouble"
-    ]
-    for w in moderate_markers:
-        if w in text_lower:
-            calculated_score += 3.5
+    # 1. High-Impact Clinical Distress & Panic Lexicon
+    severe_distress = {
+        "hopeless": 16, "pointless": 15, "unbearable": 16, "suicide": 30, "suicidal": 30,
+        "kill": 25, "die": 22, "breaking down": 16, "panic": 14, "panicking": 15,
+        "crying": 13, "drowning": 14, "suffocating": 15, "paralyzed": 14, "desperate": 15,
+        "terrified": 14, "falling apart": 16, "nightmare": 12, "empty": 12, "ruined": 13,
+        "give up": 15, "giving up": 15, "better off": 18, "worthless": 16, "cannot do this": 14,
+        "cant take it": 16, "can not take it": 16, "hate myself": 18, "cant go on": 17
+    }
 
-    # Friction markers (+1.5 to +2.5 pts)
-    friction_markers = [
-        "tired", "hectic", "hard", "tough", "annoyed", "frustrated", "busy",
-        "deadline", "exams", "exam", "test", "lonely", "alone", "isolated",
-        "headache", "fight", "grades", "homework"
-    ]
-    for w in friction_markers:
-        if w in text_lower:
-            calculated_score += 1.8
+    # 2. Moderate Distress, Anxiety & Exhaustion Lexicon
+    high_strain = {
+        "overwhelmed": 11, "overwhelm": 10, "anxious": 9, "anxiety": 9, "insomnia": 10,
+        "sleepless": 10, "exhausted": 10, "exhaustion": 9, "failing": 11, "burnout": 11,
+        "drained": 9, "miserable": 10, "stuck": 8, "worried": 7, "pressured": 8,
+        "dread": 10, "scared": 9, "cant focus": 8, "behind": 7, "late": 6,
+        "struggling": 8, "trouble": 7, "scary": 8, "depressed": 12, "depression": 12,
+        "overloaded": 9, "furious": 7
+    }
 
-    # Positive coping & protective words (reduce stress: -3.5 to -6.0 pts)
-    protective_markers = [
-        "calm", "relax", "relaxed", "peaceful", "happy", "better", "improving",
-        "good", "great", "productive", "managed", "progress", "solved",
-        "supported", "grateful", "hopeful", "confident", "slept well",
-        "balanced", "stable", "exercise", "walk"
-    ]
-    for w in protective_markers:
-        if w in text_lower:
-            calculated_score -= 4.5
+    # 3. Frictional Daily Stressors
+    moderate_friction = {
+        "tired": 5, "hectic": 5, "hard": 4, "tough": 4, "annoyed": 5, "frustrated": 6,
+        "busy": 4, "deadline": 5, "deadlines": 6, "exams": 6, "exam": 5, "test": 4,
+        "tests": 5, "lonely": 7, "alone": 6, "isolated": 7, "headache": 6, "fight": 6,
+        "argument": 6, "grades": 5, "homework": 4, "assignment": 4, "thesis": 6,
+        "stress": 6, "stressed": 7, "parents": 4, "family": 4
+    }
 
-    # 3. Urgency and Intensity Signals
-    # Exclamation marks indicate acute emotional charge
+    # 4. Positive Coping, Protective & Relief Lexicon (Strong Stress Reducers)
+    positive_protective = {
+        "calm": -12, "relax": -10, "relaxed": -11, "relaxing": -10, "peaceful": -12,
+        "happy": -12, "better": -9, "improving": -10, "good": -8, "great": -11,
+        "productive": -10, "managed": -9, "progress": -9, "solved": -10, "supported": -11,
+        "grateful": -12, "hopeful": -11, "confident": -12, "slept well": -13,
+        "balanced": -11, "stable": -10, "accomplished": -11, "fine": -6, "energized": -11,
+        "fun": -8, "laugh": -9, "enjoyed": -9, "proud": -10, "relief": -10, "relieved": -11,
+        "chilling": -8, "rested": -10, "walk": -6, "exercise": -7
+    }
+
+    # Calculate raw positive and negative score impacts
+    neg_score = sum(pts for p, pts in severe_distress.items() if p in text_lower)
+    neg_score += sum(pts for p, pts in high_strain.items() if p in text_lower)
+    neg_score += sum(pts for p, pts in moderate_friction.items() if p in text_lower)
+    pos_score = sum(abs(pts) for p, pts in positive_protective.items() if p in text_lower)
+
+    # Intensifiers scale up emotional distress
+    intensifiers = ["so", "very", "extremely", "really", "too", "completely", "totally", "utterly", "deeply", "constantly", "barely"]
+    intense_multiplier = 1.0 + min(0.6, sum(0.12 for w in words if w in intensifiers))
+    neg_score *= intense_multiplier
+
+    # Punctuation & text urgency signals
     exclamations = journal_text.count("!")
-    calculated_score += min(6.0, exclamations * 1.5)
+    urgency_boost = min(12.0, exclamations * 3.0)
+    caps_count = len([w for w in journal_text.split() if w.isupper() and len(w) > 1 and w.isalpha()])
+    urgency_boost += min(10.0, caps_count * 2.5)
 
-    # ALL CAPS words indicate amplified distress
-    caps_words = [w for w in journal_text.split() if w.isupper() and len(w) > 1 and w.isalpha()]
-    calculated_score += min(5.0, len(caps_words) * 1.5)
-
-    # Multiple co-occurring stressor domains compound strain
+    # Multi-stressor compounding penalty
     if len(stressors) >= 3:
-        calculated_score += 5.0
+        urgency_boost += 6.0
     elif len(stressors) == 2:
-        calculated_score += 2.5
+        urgency_boost += 3.0
 
-    # 4. Deterministic content-specific micro-variance based on word structure
-    # Ensures authentic human-like granularity without pseudo-repeating numbers
-    content_hash = sum(ord(c) * (i + 1) for i, c in enumerate(journal_text.strip()[:60])) % 7 - 3
-    calculated_score += content_hash
+    # Derive raw Text-Based Stress Index
+    if neg_score == 0 and pos_score > 0:
+        text_stress_index = max(5.0, 28.0 - pos_score * 1.5)
+    elif neg_score > 0:
+        text_stress_index = min(98.0, 38.0 + neg_score * 1.8 - pos_score * 1.2 + urgency_boost)
+    else:
+        text_stress_index = 45.0
 
-    # Clamp final score safely between 5 and 99 (or 100 on extreme crisis)
-    stress_score = int(round(max(5, min(99, calculated_score))))
+    # Text Authority: As text length grows or strong keywords appear, text commands higher authority over mood
+    text_authority = min(0.80, 0.45 + (total_word_count / 100.0) * 0.35)
+    if neg_score >= 25.0:
+        text_authority = max(text_authority, 0.85)
 
-    # 5. Dynamic Categorization & Risk Mapping
+    blended = (text_stress_index * text_authority) + (mood_prior * (1.0 - text_authority))
+
+    # Natural micro-variance based on exact character lengths and word hashes
+    char_variance = (sum(ord(c) * (i + 1) for i, c in enumerate(journal_text.strip()[:40])) % 9) - 4
+    stress_score = int(round(max(4, min(99, blended + char_variance))))
+
+    # Dynamic Categorization & Risk Mapping based on the real score
     if stress_score >= 85 or mood_score <= 1:
         risk_level = "HIGH"
         stress_level = "Critical / Severe"
@@ -393,7 +412,7 @@ def _call_mock(journal_text: str, mood_score: int) -> dict:
         flag_counselor = False
         resources = GENERAL_RESOURCES
 
-    # 6. Context-Aware Dynamic Sentiment & Action Synthesis
+    # Context-Aware Dynamic Sentiment & Action Synthesis
     stressors_text = ", ".join(stressors[:2]) if stressors else "general workload"
     if risk_level == "HIGH":
         sentiment = f"Student indicates acute distress associated with {stressors_text}. Emotional reserves appear heavily taxed."
