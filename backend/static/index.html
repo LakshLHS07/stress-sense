@@ -1195,16 +1195,28 @@
           <div class="flex flex-wrap items-center justify-between gap-4">
             <div>
               <h4 class="text-sm font-semibold">Box Breathing Reset (4-4-4-4)</h4>
-              <p class="text-xs opacity-70">A breathing exercise to help reduce stress and lower heart rate.</p>
+              <p class="text-xs opacity-70">A therapeutic breathing exercise to help reduce stress and lower heart rate.</p>
             </div>
-            <button
-              type="button"
-              id="breathing-toggle-btn"
-              onclick="toggleBreathing()"
-              class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
-            >
-              Start Breathing Guide
-            </button>
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                id="breathing-sound-btn"
+                onclick="toggleBreathingSound()"
+                class="px-2.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition flex items-center gap-1.5 text-zinc-300"
+                title="Toggle audio guide sound effects"
+              >
+                <span id="breathing-sound-icon">🔊</span>
+                <span id="breathing-sound-label">Sound On</span>
+              </button>
+              <button
+                type="button"
+                id="breathing-toggle-btn"
+                onclick="toggleBreathing()"
+                class="px-3.5 py-1.5 rounded-md panel-subtle text-xs font-medium transition"
+              >
+                Start Breathing Guide
+              </button>
+            </div>
           </div>
 
           <!-- Breathing Circle Area -->
@@ -1213,6 +1225,9 @@
               <div id="breathing-circle" class="breathing-indicator absolute w-20 h-20 rounded-full panel-subtle transition-transform"></div>
               <span id="breathing-phase-text" class="relative z-10 text-xs font-medium uppercase tracking-wider text-center">Inhale (4s)</span>
             </div>
+            <p id="breathing-sound-cue" class="text-[11px] font-mono text-center text-amber-400 transition-opacity">
+              ♪ Rising Harmonic Swell
+            </p>
             <p class="text-xs opacity-70 text-center max-w-sm">
               Inhale smoothly (4s) &bull; Hold lungs full (4s) &bull; Exhale completely (4s) &bull; Hold empty (4s)
             </p>
@@ -2289,12 +2304,179 @@
       }
     }
 
+    // =========================================================================
+    // BOX BREATHING THERAPEUTIC SOUND ENGINE (Web Audio API)
+    // =========================================================================
+    let breathingAudioCtx = null;
+    let isBreathingSoundMuted = false;
+
+    function getBreathingAudioContext() {
+      if (!breathingAudioCtx) {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          breathingAudioCtx = new AudioCtx();
+        }
+      }
+      if (breathingAudioCtx && breathingAudioCtx.state === 'suspended') {
+        breathingAudioCtx.resume();
+      }
+      return breathingAudioCtx;
+    }
+
+    function toggleBreathingSound() {
+      isBreathingSoundMuted = !isBreathingSoundMuted;
+      const icon = document.getElementById('breathing-sound-icon');
+      const label = document.getElementById('breathing-sound-label');
+      const cue = document.getElementById('breathing-sound-cue');
+      if (isBreathingSoundMuted) {
+        if (icon) icon.textContent = '🔇';
+        if (label) label.textContent = 'Muted';
+        if (cue) cue.classList.add('opacity-40');
+      } else {
+        if (icon) icon.textContent = '🔊';
+        if (label) label.textContent = 'Sound On';
+        if (cue) cue.classList.remove('opacity-40');
+        getBreathingAudioContext();
+      }
+    }
+
+    function playBreathingSound(phase) {
+      if (isBreathingSoundMuted) return;
+      try {
+        const ctx = getBreathingAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+
+        if (phase === 'inhale') {
+          // 1. Inhale: Rising crystal harmonic chime (210Hz -> 360Hz swell)
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(210, now);
+          osc1.frequency.exponentialRampToValueAtTime(360, now + 2.0);
+
+          osc2.type = 'triangle';
+          osc2.frequency.setValueAtTime(420, now);
+          osc2.frequency.exponentialRampToValueAtTime(720, now + 2.0);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.12, now + 0.6);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.start(now);
+          osc2.start(now);
+          osc1.stop(now + 2.7);
+          osc2.stop(now + 2.7);
+
+        } else if (phase === 'hold-full') {
+          // 2. Hold Lungs Full: Resonant Tibetan singing bowl bell (528Hz Solfeggio clarity chime)
+          const bell = ctx.createOscillator();
+          const harmonic = ctx.createOscillator();
+          const bellGain = ctx.createGain();
+
+          bell.type = 'sine';
+          bell.frequency.setValueAtTime(528, now);
+
+          harmonic.type = 'sine';
+          harmonic.frequency.setValueAtTime(1056, now);
+
+          bellGain.gain.setValueAtTime(0.14, now);
+          bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+
+          bell.connect(bellGain);
+          harmonic.connect(bellGain);
+          bellGain.connect(ctx.destination);
+
+          bell.start(now);
+          harmonic.start(now);
+          bell.stop(now + 2.9);
+          harmonic.stop(now + 2.9);
+
+        } else if (phase === 'exhale') {
+          // 3. Exhale: Descending soft release tone (350Hz -> 130Hz) + calming breath whoosh
+          const osc = ctx.createOscillator();
+          const oscGain = ctx.createGain();
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(350, now);
+          osc.frequency.exponentialRampToValueAtTime(130, now + 2.4);
+
+          oscGain.gain.setValueAtTime(0.001, now);
+          oscGain.gain.linearRampToValueAtTime(0.13, now + 0.5);
+          oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.7);
+
+          osc.connect(oscGain);
+          oscGain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 2.8);
+
+          const bufferSize = ctx.sampleRate * 2.0;
+          const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+          const channel = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) channel[i] = Math.random() * 2 - 1;
+          const noiseSource = ctx.createBufferSource();
+          noiseSource.buffer = noiseBuffer;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(500, now);
+          filter.frequency.exponentialRampToValueAtTime(140, now + 2.0);
+
+          const noiseGain = ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.001, now);
+          noiseGain.gain.linearRampToValueAtTime(0.038, now + 0.5);
+          noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+          noiseSource.connect(filter);
+          filter.connect(noiseGain);
+          noiseGain.connect(ctx.destination);
+
+          noiseSource.start(now);
+          noiseSource.stop(now + 2.3);
+
+        } else if (phase === 'hold-empty') {
+          // 4. Hold Empty: Grounding deep stillness resonance (174Hz Solfeggio tone)
+          const gong = ctx.createOscillator();
+          const sub = ctx.createOscillator();
+          const gongGain = ctx.createGain();
+
+          gong.type = 'sine';
+          gong.frequency.setValueAtTime(174, now);
+
+          sub.type = 'triangle';
+          sub.frequency.setValueAtTime(87, now);
+
+          gongGain.gain.setValueAtTime(0.001, now);
+          gongGain.gain.linearRampToValueAtTime(0.12, now + 0.35);
+          gongGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.6);
+
+          gong.connect(gongGain);
+          sub.connect(gongGain);
+          gongGain.connect(ctx.destination);
+
+          gong.start(now);
+          sub.start(now);
+          gong.stop(now + 2.7);
+          sub.stop(now + 2.7);
+        }
+      } catch (err) {
+        console.warn('Audio playback error:', err);
+      }
+    }
+
     // Box Breathing Guide
     function toggleBreathing() {
       const viz = document.getElementById('breathing-viz');
       const btn = document.getElementById('breathing-toggle-btn');
       const circle = document.getElementById('breathing-circle');
       const text = document.getElementById('breathing-phase-text');
+      const cue = document.getElementById('breathing-sound-cue');
 
       isBreathingActive = !isBreathingActive;
 
@@ -2302,18 +2484,41 @@
         viz.classList.remove('hidden');
         btn.textContent = 'Pause Guide';
         circle.classList.add('active');
+        getBreathingAudioContext();
 
         let cycleTime = 0;
+        text.textContent = 'Inhale... (4s)';
+        if (cue) cue.textContent = '♪ Rising Harmonic Swell';
+        playBreathingSound('inhale');
+
         breathingInterval = setInterval(() => {
           cycleTime = (cycleTime + 1) % 16;
-          if (cycleTime < 4) {
-            text.textContent = 'Inhale... (4s)';
+          const secInPhase = 4 - (cycleTime % 4);
+
+          if (cycleTime === 0) {
+            text.textContent = `Inhale... (${secInPhase}s)`;
+            if (cue) cue.textContent = '♪ Rising Harmonic Swell';
+            playBreathingSound('inhale');
+          } else if (cycleTime < 4) {
+            text.textContent = `Inhale... (${secInPhase}s)`;
+          } else if (cycleTime === 4) {
+            text.textContent = `Hold breath (${secInPhase}s)`;
+            if (cue) cue.textContent = '♪ Singing Bowl Chime (528Hz)';
+            playBreathingSound('hold-full');
           } else if (cycleTime < 8) {
-            text.textContent = 'Hold breath (4s)';
+            text.textContent = `Hold breath (${secInPhase}s)`;
+          } else if (cycleTime === 8) {
+            text.textContent = `Slow Exhale (${secInPhase}s)`;
+            if (cue) cue.textContent = '♪ Descending Release & Calming Sigh';
+            playBreathingSound('exhale');
           } else if (cycleTime < 12) {
-            text.textContent = 'Slow Exhale (4s)';
+            text.textContent = `Slow Exhale (${secInPhase}s)`;
+          } else if (cycleTime === 12) {
+            text.textContent = `Hold empty (${secInPhase}s)`;
+            if (cue) cue.textContent = '♪ Deep Stillness Resonance (174Hz)';
+            playBreathingSound('hold-empty');
           } else {
-            text.textContent = 'Hold empty (4s)';
+            text.textContent = `Hold empty (${secInPhase}s)`;
           }
         }, 1000);
 
