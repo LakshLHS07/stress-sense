@@ -805,7 +805,7 @@
           </div>
           <div class="p-3 rounded-xl border text-center cursor-pointer transition hover:border-amber-400/40" onclick="cycleStreakMode()" title="Click to toggle streak mode" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
             <div id="cal-stat-streak-title" class="text-[10px] font-semibold opacity-70 uppercase tracking-wider truncate" style="color: #e5c07b;">Daily Log Streak</div>
-            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">🔥 0d</div>
+            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">0d streak</div>
           </div>
         </div>
 
@@ -830,7 +830,7 @@
               class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm"
               style="background: #2a220e; color: #fce79a; border: 1px solid rgba(212, 175, 55, 0.6);"
             >
-              <span>🔥 Daily Logs</span>
+              <span>Daily Logs</span>
             </button>
             <button
               type="button"
@@ -838,7 +838,7 @@
               onclick="setCalendarStreakMode('good')"
               class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-medium transition flex items-center justify-center gap-1 text-zinc-400 hover:text-emerald-300"
             >
-              <span>🌿 Good Days</span>
+              <span>Good Days</span>
             </button>
             <button
               type="button"
@@ -846,7 +846,7 @@
               onclick="setCalendarStreakMode('mod')"
               class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-medium transition flex items-center justify-center gap-1 text-zinc-400 hover:text-amber-300"
             >
-              <span>⚖️ Moderate</span>
+              <span>Moderate</span>
             </button>
           </div>
 
@@ -1689,7 +1689,7 @@
         const best = calculatedStreaks.daily.best;
         if (streakTitle) streakTitle.textContent = 'Daily Log Streak';
         if (streakVal) {
-          streakVal.innerHTML = `🔥 ${cur}d`;
+          streakVal.innerHTML = `${cur}d streak`;
           streakVal.style.color = '#fce79a';
         }
         if (bestBadge) {
@@ -1711,7 +1711,7 @@
         const best = calculatedStreaks.good.best;
         if (streakTitle) streakTitle.textContent = 'Good Days Streak';
         if (streakVal) {
-          streakVal.innerHTML = `🌿 ${cur}d`;
+          streakVal.innerHTML = `${cur}d streak`;
           streakVal.style.color = '#6ee7b7';
         }
         if (bestBadge) {
@@ -1733,7 +1733,7 @@
         const best = calculatedStreaks.mod.best;
         if (streakTitle) streakTitle.textContent = 'Moderate Streak';
         if (streakVal) {
-          streakVal.innerHTML = `⚖️ ${cur}d`;
+          streakVal.innerHTML = `${cur}d streak`;
           streakVal.style.color = '#fcd34d';
         }
         if (bestBadge) {
@@ -2679,13 +2679,13 @@
       if (countPill) {
         if (isHigh) {
           countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40';
-          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • ⚡ High Stress Triage Active`;
+          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • High Stress Triage Active`;
         } else if (isMod) {
           countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40';
-          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • ⚠️ Moderate Stress Pacing`;
+          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • Moderate Stress Pacing`;
         } else {
           countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
-          countPill.textContent = `${problems.length} Focus Area${problems.length === 1 ? '' : 's'} • 🛡️ Balanced Wellbeing Routine`;
+          countPill.textContent = `${problems.length} Focus Area${problems.length === 1 ? '' : 's'} • Balanced Wellbeing Routine`;
         }
       }
 
@@ -2701,16 +2701,16 @@
           
           let cardBorderClass = 'border-l-4 border-l-emerald-500';
           let sevColor = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-          let remedyBadge = '✨ Daily Mindful Reflection';
+          let remedyBadge = 'Daily Mindful Reflection';
           
           if (p.severity === 'Severe' || isHigh) {
             cardBorderClass = 'border-l-4 border-l-red-500 shadow-[0_0_15px_rgba(239,68,68,0.12)]';
             sevColor = 'bg-red-500/25 text-red-300 border border-red-500/40 font-bold';
-            remedyBadge = '⚡ Immediate Physiological Circuit Breaker';
+            remedyBadge = 'Immediate Physiological Circuit Breaker';
           } else if (p.severity === 'Moderate' || isMod) {
             cardBorderClass = 'border-l-4 border-l-amber-500';
             sevColor = 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-semibold';
-            remedyBadge = '⏱️ 5-Minute Practical Reset';
+            remedyBadge = '5-Minute Practical Reset';
           }
 
           card.className = `panel panel-card-glow p-5 rounded-xl space-y-3.5 ${cardBorderClass}`;
