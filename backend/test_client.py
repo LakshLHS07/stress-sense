@@ -82,7 +82,7 @@ def test_suite():
     assert crisis_data["stress_assessment"]["stress_score"] >= 85, "Stress score should be >= 85 for crisis"
     
     hotline_titles = [r["title"] for r in crisis_data["coping_resources"]]
-    assert any("988" in t for t in hotline_titles), "988 hotline missing from coping resources"
+    assert any("Tele-MANAS" in t or "14416" in t or "KIRAN" in t for t in hotline_titles), "Indian helpline missing from coping resources"
     print("  --> Risk Level:", crisis_data["risk_level"])
     print("  --> Flagged for Counselor:", crisis_data["flag_for_counselor"])
     print("  --> Stress Score:", crisis_data["stress_assessment"]["stress_score"])
