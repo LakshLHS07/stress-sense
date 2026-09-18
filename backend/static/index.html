@@ -246,31 +246,56 @@
       <!-- Controls: Navigation Tabs & Profile & Dark/Light Switch -->
       <div class="flex items-center gap-2.5">
         
-        <!-- Navigation Tabs (Only Assessment and Counselor Queue; History moved to Profile) -->
-        <nav class="flex items-center panel p-1 rounded-lg text-xs font-medium">
-          <button id="tab-btn-checkin" onclick="switchTab('checkin')" class="px-3.5 py-1.5 rounded-md shadow-sm transition" style="background-color: var(--tab-active-bg); color: var(--tab-active-text);">
-            Assessment & Remedies
-          </button>
-          <button id="tab-btn-counselor" onclick="switchTab('counselor')" class="px-3.5 py-1.5 rounded-md transition flex items-center gap-1.5" style="color: var(--text-muted);">
-            Counselor Queue
+        <!-- Navigation Tabs: Merged Stress & Calendar Black/Gold Toggle + Counselor Queue -->
+        <nav class="flex items-center gap-2">
+          
+          <!-- Unified Merged Toggle: Stress & Calendar (Black & Gold Theme) -->
+          <div
+            id="stress-calendar-toggle-pill"
+            class="flex items-center p-0.5 rounded-lg border shadow-sm transition"
+            style="background: linear-gradient(135deg, #16161a 0%, #0c0c0e 100%); border-color: rgba(212, 175, 55, 0.45); box-shadow: 0 0 12px rgba(212, 175, 55, 0.15);"
+          >
+            <button
+              id="tab-btn-checkin"
+              type="button"
+              onclick="toggleStressCalendar('stress')"
+              class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-md text-xs font-bold transition shadow-sm"
+              style="background: #e5c07b; color: #0a0a0d;"
+              title="Stress Assessment & Daily Check-In"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span>Stress</span>
+            </button>
+
+            <button
+              id="tab-btn-calendar"
+              type="button"
+              onclick="toggleStressCalendar('calendar')"
+              class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-md text-xs font-semibold transition opacity-80 hover:opacity-100"
+              style="background: transparent; color: #f5d77f;"
+              title="Wellbeing Calendar & History Timeline"
+            >
+              <svg class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>Calendar</span>
+            </button>
+          </div>
+
+          <!-- Counselor Queue Tab -->
+          <button
+            id="tab-btn-counselor"
+            type="button"
+            onclick="switchTab('counselor')"
+            class="px-3.5 py-1.5 rounded-lg panel transition flex items-center gap-1.5 text-xs font-medium"
+            style="color: var(--text-muted);"
+          >
+            <span>Counselor Queue</span>
             <span id="flag-counter-pill" class="hidden px-1.5 py-0.2 rounded panel text-red-400 text-[10px] font-mono">0</span>
           </button>
         </nav>
-
-        <!-- Calendar Button (Black and Gold Theme) -->
-        <button
-          id="calendar-btn"
-          type="button"
-          onclick="openCalendarDrawer()"
-          class="flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg transition text-xs font-semibold shadow-md hover:scale-[1.03] active:scale-[0.97]"
-          style="background: linear-gradient(135deg, #18181c 0%, #0c0c0e 100%); color: #f5d77f; border: 1px solid rgba(212, 175, 55, 0.45); box-shadow: 0 0 10px rgba(212, 175, 55, 0.15);"
-          title="Open Wellbeing Calendar & Check-in Timeline"
-        >
-          <svg class="w-3.5 h-3.5 text-amber-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span class="tracking-wide">Calendar</span>
-        </button>
 
         <!-- Sleep Tracker Slider Button -->
         <button
@@ -1247,9 +1272,56 @@
     });
 
     // =========================================================================
-    // BLACK & GOLD THEME WELLBEING CALENDAR DRAWER
+    // BLACK & GOLD THEME WELLBEING CALENDAR DRAWER & TOGGLE
     // =========================================================================
     let calendarDate = new Date();
+    let currentStressCalendarMode = 'stress';
+
+    function toggleStressCalendar(mode) {
+      if (!mode) {
+        mode = (currentStressCalendarMode === 'stress') ? 'calendar' : 'stress';
+      }
+      currentStressCalendarMode = mode;
+
+      const stressBtn = document.getElementById('tab-btn-checkin');
+      const calBtn = document.getElementById('tab-btn-calendar');
+      const counselorBtn = document.getElementById('tab-btn-counselor');
+
+      if (counselorBtn) {
+        counselorBtn.style.backgroundColor = 'transparent';
+        counselorBtn.style.color = 'var(--text-muted)';
+        counselorBtn.classList.add('opacity-70');
+      }
+
+      if (mode === 'stress') {
+        switchTab('checkin');
+        closeCalendarDrawer(false);
+
+        if (stressBtn) {
+          stressBtn.style.background = '#e5c07b';
+          stressBtn.style.color = '#0a0a0d';
+          stressBtn.classList.remove('opacity-80');
+        }
+        if (calBtn) {
+          calBtn.style.background = 'transparent';
+          calBtn.style.color = '#f5d77f';
+          calBtn.classList.add('opacity-80');
+        }
+      } else {
+        openCalendarDrawer();
+
+        if (calBtn) {
+          calBtn.style.background = '#e5c07b';
+          calBtn.style.color = '#0a0a0d';
+          calBtn.classList.remove('opacity-80');
+        }
+        if (stressBtn) {
+          stressBtn.style.background = 'transparent';
+          stressBtn.style.color = '#f5d77f';
+          stressBtn.classList.add('opacity-80');
+        }
+      }
+    }
 
     function openCalendarDrawer() {
       const container = document.getElementById('calendar-drawer-container');
@@ -1265,13 +1337,29 @@
       renderCalendar();
     }
 
-    function closeCalendarDrawer() {
+    function closeCalendarDrawer(syncToggle = true) {
       const container = document.getElementById('calendar-drawer-container');
       const panel = document.getElementById('calendar-drawer-panel');
       panel.classList.remove('translate-x-0');
       panel.classList.add('translate-x-full');
       container.classList.remove('pointer-events-auto', 'opacity-100');
       container.classList.add('pointer-events-none', 'opacity-0');
+
+      if (syncToggle) {
+        const stressBtn = document.getElementById('tab-btn-checkin');
+        const calBtn = document.getElementById('tab-btn-calendar');
+        if (stressBtn) {
+          stressBtn.style.background = '#e5c07b';
+          stressBtn.style.color = '#0a0a0d';
+          stressBtn.classList.remove('opacity-80');
+        }
+        if (calBtn) {
+          calBtn.style.background = 'transparent';
+          calBtn.style.color = '#f5d77f';
+          calBtn.classList.add('opacity-80');
+        }
+        currentStressCalendarMode = 'stress';
+      }
     }
 
     function changeCalendarMonth(offset) {
@@ -1963,14 +2051,31 @@
         const btn = document.getElementById('tab-btn-' + t);
         if (t === tab) {
           sec.classList.remove('hidden');
-          btn.style.backgroundColor = 'var(--tab-active-bg)';
-          btn.style.color = 'var(--tab-active-text)';
-          btn.classList.remove('opacity-70');
+          if (t === 'counselor') {
+            btn.style.backgroundColor = 'var(--tab-active-bg)';
+            btn.style.color = 'var(--tab-active-text)';
+            btn.classList.remove('opacity-70');
+
+            const stressBtn = document.getElementById('tab-btn-checkin');
+            const calBtn = document.getElementById('tab-btn-calendar');
+            if (stressBtn) {
+              stressBtn.style.background = 'transparent';
+              stressBtn.style.color = '#f5d77f';
+              stressBtn.classList.add('opacity-80');
+            }
+            if (calBtn) {
+              calBtn.style.background = 'transparent';
+              calBtn.style.color = '#f5d77f';
+              calBtn.classList.add('opacity-80');
+            }
+          }
         } else {
           sec.classList.add('hidden');
-          btn.style.backgroundColor = 'transparent';
-          btn.style.color = 'inherit';
-          btn.classList.add('opacity-70');
+          if (t === 'counselor') {
+            btn.style.backgroundColor = 'transparent';
+            btn.style.color = 'var(--text-muted)';
+            btn.classList.add('opacity-70');
+          }
         }
       });
 
