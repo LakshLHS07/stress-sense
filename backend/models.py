@@ -3,14 +3,36 @@ Pydantic data contracts for the mental health check-in API.
 Supports deep stress assessment, problem extraction, and targeted remedies.
 """
 
-from typing import List, Dict, Literal
+from typing import List, Dict, Optional, Literal
 from pydantic import BaseModel, Field
+
+
+class SleepLogEntry(BaseModel):
+    day: str
+    hours: float
+    quality: Optional[str] = "Good"
+    notes: Optional[str] = ""
+
+
+class SleepInsights(BaseModel):
+    avg_hours: float
+    sleep_debt_hours: float
+    debt_status: str  # "Deficit" or "Surplus"
+    recent_night_hours: float
+    recent_quality: str
+    circadian_regularity: str
+    deep_sleep_ratio: str
+    stress_correlation: str
+    impact_badge: str
+    clinical_narrative: str
+    actionable_sleep_rule: str
 
 
 class CheckInRequest(BaseModel):
     student_id: str
     journal_text: str
     mood_score: int = Field(..., ge=1, le=5, description="Self-reported mood, 1 (worst) to 5 (best)")
+    sleep_records: Optional[List[Dict]] = Field(default=None, description="Optional 7-day sleep log from sleep tracker")
 
 
 class CopingResource(BaseModel):
@@ -42,6 +64,7 @@ class AnalysisResponse(BaseModel):
     flag_for_counselor: bool
     identified_problems: List[ProblemRemedy] = Field(default_factory=list)
     coping_resources: List[Dict] = Field(default_factory=list)
+    sleep_insights: Optional[SleepInsights] = None
 
 
 class HistoryEntry(BaseModel):

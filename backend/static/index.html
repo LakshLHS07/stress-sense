@@ -877,6 +877,75 @@
 
         </div>
 
+        <!-- Sleep Tracker Biometrics & AI Correlation Card -->
+        <div id="ai-sleep-correlation-card" class="panel panel-card-glow rounded-xl p-5 space-y-4" style="border: 1px solid rgba(234, 179, 8, 0.35);">
+          
+          <div class="flex flex-wrap items-center justify-between gap-3 border-b pb-3" style="border-color: var(--border);">
+            <div class="flex items-center space-x-2.5">
+              <div class="w-7 h-7 rounded-lg panel-subtle flex items-center justify-center text-amber-400">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-sm font-semibold leading-tight">Sleep Tracker Biometrics & AI Correlation</h3>
+                <p class="text-[11px] opacity-60">Cross-analyzed with your 7-day sleep tracker database & clinical circadian markers</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span id="ai-sleep-impact-badge" class="px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold panel-subtle text-amber-400">
+                ⚡ Sleep Tracker Insights Active
+              </span>
+              <button
+                type="button"
+                onclick="openSleepDrawer()"
+                class="px-2.5 py-1 rounded-lg text-xs font-medium panel-subtle transition flex items-center gap-1 hover:text-amber-400"
+                title="Open 7-Day Sleep Tracker Slider"
+              >
+                <span>View Sleep Graph</span>
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Key Biometric Metrics Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+            <div class="panel-subtle rounded-lg p-3 space-y-0.5">
+              <span class="text-[10px] uppercase font-semibold opacity-60 block">7-Day Avg Sleep</span>
+              <div class="flex items-baseline gap-1">
+                <span id="ai-sleep-avg" class="text-lg font-bold font-mono text-zinc-100">7.1h</span>
+                <span class="text-[10px] opacity-60">/ 7.5h opt</span>
+              </div>
+            </div>
+            <div class="panel-subtle rounded-lg p-3 space-y-0.5">
+              <span class="text-[10px] uppercase font-semibold opacity-60 block">Cumulative Sleep Debt</span>
+              <span id="ai-sleep-debt" class="text-lg font-bold font-mono text-amber-400">-2.8h Deficit</span>
+            </div>
+            <div class="panel-subtle rounded-lg p-3 space-y-0.5">
+              <span class="text-[10px] uppercase font-semibold opacity-60 block">Stress Correlation</span>
+              <span id="ai-sleep-corr" class="text-xs font-mono font-semibold text-red-400">High Inverse (r = -0.84)</span>
+            </div>
+            <div class="panel-subtle rounded-lg p-3 space-y-0.5">
+              <span class="text-[10px] uppercase font-semibold opacity-60 block">Circadian Architecture</span>
+              <span id="ai-sleep-circadian" class="text-xs font-mono text-zinc-200">86% Consistent</span>
+            </div>
+          </div>
+
+          <!-- Clinical Diagnostic Narrative -->
+          <div class="panel-subtle panel-subtle-glow rounded-lg p-3.5 space-y-1.5">
+            <span class="text-[10px] uppercase font-semibold opacity-70 tracking-wider block">Sleep-Stress Diagnostic Insight:</span>
+            <p id="ai-sleep-narrative" class="text-xs opacity-90 leading-relaxed font-sans"></p>
+            <div class="pt-1.5 flex items-start gap-2 text-[11px] opacity-80 border-t" style="border-color: var(--border);">
+              <span class="text-amber-400 font-semibold shrink-0">Prescribed Rule:</span>
+              <span id="ai-sleep-action-rule" class="font-medium text-zinc-200"></span>
+            </div>
+          </div>
+
+        </div>
+
         <!-- Problems & Targeted Solutions -->
         <div class="space-y-4">
           <div class="flex items-center justify-between">
@@ -1053,6 +1122,13 @@
     function saveSleepData(data) {
       const id = getStudentId();
       localStorage.setItem('stress_sense_sleep_' + id, JSON.stringify(data));
+      try {
+        fetch('/api/sleep/' + id, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).catch(() => {});
+      } catch(e) {}
     }
 
     function selectSleepDay(day) {
@@ -1413,7 +1489,8 @@
           body: JSON.stringify({
             student_id: currentStudentId,
             journal_text: journalText,
-            mood_score: currentMood
+            mood_score: currentMood,
+            sleep_records: getSleepData()
           })
         });
 
@@ -1521,6 +1598,36 @@
       // Recommended priority & Sentiment
       document.getElementById('recommended-action-text').textContent = data.recommended_action || 'Maintain healthy daily study and sleep boundaries.';
       document.getElementById('sentiment-summary-text').textContent = data.sentiment_summary || '';
+
+      // ── Sleep Tracker Biometrics & AI Correlation ───────────────────
+      const sleepCard = document.getElementById('ai-sleep-correlation-card');
+      const sleep = data.sleep_insights;
+      if (sleep && sleepCard) {
+        sleepCard.classList.remove('hidden');
+        document.getElementById('ai-sleep-impact-badge').textContent = sleep.impact_badge || 'Biometrics Synced';
+        document.getElementById('ai-sleep-avg').textContent = `${sleep.avg_hours}h`;
+
+        const debtEl = document.getElementById('ai-sleep-debt');
+        if (sleep.debt_status === 'Deficit') {
+          debtEl.textContent = `-${sleep.sleep_debt_hours}h Deficit`;
+          debtEl.className = 'text-lg font-bold font-mono text-amber-400';
+        } else {
+          debtEl.textContent = `+${sleep.sleep_debt_hours}h Surplus`;
+          debtEl.className = 'text-lg font-bold font-mono text-emerald-400';
+        }
+
+        const corrEl = document.getElementById('ai-sleep-corr');
+        corrEl.textContent = sleep.stress_correlation || 'Active';
+        if (sleep.debt_status === 'Deficit') {
+          corrEl.className = 'text-xs font-mono font-semibold text-amber-400';
+        } else {
+          corrEl.className = 'text-xs font-mono font-semibold text-emerald-400';
+        }
+
+        document.getElementById('ai-sleep-circadian').textContent = sleep.circadian_regularity || 'Consistent';
+        document.getElementById('ai-sleep-narrative').textContent = sleep.clinical_narrative || '';
+        document.getElementById('ai-sleep-action-rule').textContent = sleep.actionable_sleep_rule || '';
+      }
 
       // IDENTIFIED PROBLEMS & REMEDIES
       const problemsFeed = document.getElementById('problems-remedies-feed');

@@ -109,6 +109,22 @@ def test_suite():
     print(f"  --> Counselor queue currently has {len(flags)} urgent flag(s): {flagged_ids}")
     print("  --> PASS: Counselor triage flags endpoint operational.")
 
+    # 6. Test Sleep Tracker Database & Cross-Analysis Insights
+    print("\n[TEST 6] Testing Sleep Tracker Database & AI Insights (/api/sleep/student_042) ...")
+    sleep_resp = client.get("/api/sleep/student_042")
+    assert sleep_resp.status_code == 200, f"Expected 200, got {sleep_resp.status_code}"
+    sleep_data = sleep_resp.json()
+    assert "records" in sleep_data and len(sleep_data["records"]) == 7, "Expected 7-day sleep records"
+    assert "insights" in sleep_data, "Expected insights in sleep data"
+    
+    insights = sleep_data["insights"]
+    print(f"  --> 7-Day Average Sleep: {insights['avg_hours']}h/night")
+    print(f"  --> Cumulative Debt: {insights['sleep_debt_hours']}h ({insights['debt_status']})")
+    print(f"  --> Stress Correlation: {insights['stress_correlation']}")
+    print(f"  --> Biometric Impact: {insights['impact_badge'].encode('ascii', 'replace').decode('ascii')}")
+    print(f"  --> Clinical Narrative: {insights['clinical_narrative'][:120]}...")
+    print("  --> PASS: Sleep tracker database and AI analysis insights verified.")
+
     print("\n================================================================")
     print("ALL TESTS PASSED SUCCESSFULLY! APP IS READY FOR LOCAL VISITS.")
     print("================================================================\n")
