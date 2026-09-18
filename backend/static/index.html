@@ -106,6 +106,53 @@
       background-color: var(--panel-subtle);
       border: 1px solid var(--border);
     }
+    /* Minimal edge light leak for select secondary highlight boxes */
+    .panel-subtle-glow {
+      border: 1px solid rgba(212, 175, 55, 0.28) !important;
+      box-shadow: 0 0 14px -3px rgba(212, 175, 55, 0.18), 0 0 28px -6px rgba(234, 179, 8, 0.08);
+    }
+    html.light .panel-subtle-glow {
+      border: 1px solid var(--border) !important;
+      box-shadow: none;
+    }
+
+    /* Selected mood button minimal edge glow */
+    .mood-btn-active {
+      border: 1px solid rgba(212, 175, 55, 0.45) !important;
+      box-shadow: 0 0 14px -2px rgba(212, 175, 55, 0.28), 0 0 24px -4px rgba(234, 179, 8, 0.12) !important;
+    }
+    html.light .mood-btn-active {
+      border: 1px solid var(--border) !important;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    /* Journal textarea subtle golden focus edge leak */
+    #journal_text:focus {
+      border-color: rgba(212, 175, 55, 0.38) !important;
+      box-shadow: 0 0 16px -3px rgba(212, 175, 55, 0.22);
+    }
+
+    /* Submit CTA button minimal golden rim glow */
+    #submit-btn {
+      box-shadow: 0 0 18px -3px rgba(212, 175, 55, 0.25), 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    #submit-btn:hover {
+      box-shadow: 0 0 24px -2px rgba(212, 175, 55, 0.38), 0 4px 16px rgba(0, 0, 0, 0.5);
+    }
+    html.light #submit-btn {
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Profile drawer left border edge light leak */
+    #profile-drawer-panel {
+      border-left: 1px solid rgba(212, 175, 55, 0.25);
+      box-shadow: -8px 0 35px -5px rgba(212, 175, 55, 0.12), -20px 0 60px -10px rgba(0, 0, 0, 0.85);
+    }
+    html.light #profile-drawer-panel {
+      border-left: 1px solid var(--border);
+      box-shadow: -10px 0 25px rgba(0, 0, 0, 0.08);
+    }
+
     .app-header {
       background-color: var(--header-bg);
       border-color: var(--border);
@@ -118,6 +165,8 @@
     }
     .breathing-indicator.active {
       animation: breathePulse 16s infinite ease-in-out;
+      border: 1px solid rgba(212, 175, 55, 0.45);
+      box-shadow: 0 0 25px -4px rgba(212, 175, 55, 0.35), 0 0 50px -8px rgba(234, 179, 8, 0.18);
     }
   </style>
 </head>
@@ -227,7 +276,7 @@
       <div class="flex-1 overflow-y-auto p-5 space-y-6">
         
         <!-- Profile / Sign In Section -->
-        <div class="panel-subtle rounded-xl p-4 space-y-3.5">
+        <div class="panel-subtle panel-subtle-glow rounded-xl p-4 space-y-3.5">
           <div class="flex items-center justify-between">
             <span class="text-xs font-semibold uppercase tracking-wider opacity-70">Active Identity</span>
             <span class="px-2 py-0.5 rounded text-[10px] font-mono panel text-emerald-400">Signed In</span>
@@ -359,7 +408,7 @@
                 <span class="text-xs font-semibold opacity-70">Level 1</span>
                 <span class="text-[10px] opacity-60 mt-0.5">Crisis</span>
               </button>
-              <button type="button" onclick="selectMood(2)" id="mood-btn-2" class="mood-btn py-2.5 px-2 rounded-lg panel-subtle text-center transition flex flex-col items-center" style="outline: 1px solid var(--border);">
+              <button type="button" onclick="selectMood(2)" id="mood-btn-2" class="mood-btn mood-btn-active py-2.5 px-2 rounded-lg panel-subtle text-center transition flex flex-col items-center">
                 <span class="text-xs font-semibold">Level 2</span>
                 <span class="text-[10px] opacity-80 mt-0.5">High Strain</span>
               </button>
@@ -501,7 +550,7 @@
             </div>
 
             <!-- Priority Action -->
-            <div class="panel-subtle rounded-lg p-3.5 space-y-1">
+            <div class="panel-subtle panel-subtle-glow rounded-lg p-3.5 space-y-1">
               <span class="text-[11px] font-medium uppercase opacity-70 tracking-wider block">Recommended Priority</span>
               <p id="recommended-action-text" class="text-xs opacity-90 leading-relaxed"></p>
             </div>
@@ -721,13 +770,11 @@
       for (let i = 1; i <= 5; i++) {
         const btn = document.getElementById('mood-btn-' + i);
         if (i === score) {
-          btn.className = 'mood-btn py-2.5 px-2 rounded-lg panel-subtle text-center transition flex flex-col items-center';
-          btn.style.outline = '1px solid var(--border)';
+          btn.className = 'mood-btn mood-btn-active py-2.5 px-2 rounded-lg panel-subtle text-center transition flex flex-col items-center';
           btn.children[0].className = 'text-xs font-semibold';
           btn.children[1].className = 'text-[10px] opacity-80 mt-0.5';
         } else {
           btn.className = 'mood-btn py-2.5 px-2 rounded-lg panel text-center transition flex flex-col items-center';
-          btn.style.outline = 'none';
           btn.children[0].className = 'text-xs font-semibold opacity-70';
           btn.children[1].className = 'text-[10px] opacity-60 mt-0.5';
         }
@@ -928,7 +975,7 @@
             <!-- Two-column solution breakdown -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               
-              <div class="panel-subtle rounded-lg p-3.5 space-y-1">
+              <div class="panel-subtle panel-subtle-glow rounded-lg p-3.5 space-y-1">
                 <span class="text-[11px] font-semibold opacity-80 uppercase tracking-wider block">Immediate Remedy (2-5 Min Reset)</span>
                 <p class="text-xs opacity-90 leading-relaxed">${escapeHtml(p.immediate_remedy)}</p>
               </div>
