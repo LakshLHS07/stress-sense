@@ -803,9 +803,57 @@
             <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Avg Stress</div>
             <div id="cal-stat-avg" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">--</div>
           </div>
-          <div class="p-3 rounded-xl border text-center" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
-            <div class="text-[10px] font-semibold opacity-70 uppercase tracking-wider" style="color: #e5c07b;">Active Streak</div>
-            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">0d streak</div>
+          <div class="p-3 rounded-xl border text-center cursor-pointer transition hover:border-amber-400/40" onclick="cycleStreakMode()" title="Click to toggle streak mode" style="background: #101014; border-color: rgba(212, 175, 55, 0.2);">
+            <div id="cal-stat-streak-title" class="text-[10px] font-semibold opacity-70 uppercase tracking-wider truncate" style="color: #e5c07b;">Daily Log Streak</div>
+            <div id="cal-stat-streak" class="text-base font-bold font-mono mt-0.5" style="color: #fce79a;">🔥 0d</div>
+          </div>
+        </div>
+
+        <!-- Streak Mode Toggle Selector Card -->
+        <div class="p-3 rounded-xl border space-y-2.5" style="background: #101014; border-color: rgba(212, 175, 55, 0.25);">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider flex items-center gap-1.5" style="color: #d4af37;">
+              <svg class="w-3.5 h-3.5 text-amber-400 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Streak Tracker Mode
+            </span>
+            <span id="cal-streak-best-badge" class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
+              Record: --
+            </span>
+          </div>
+
+          <!-- 3-Way Interactive Toggle Buttons -->
+          <div class="grid grid-cols-3 gap-1.5 p-1 rounded-lg bg-black/40 border border-white/5">
+            <button
+              type="button"
+              id="streak-btn-daily"
+              onclick="setCalendarStreakMode('daily')"
+              class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-bold transition flex items-center justify-center gap-1 shadow-sm"
+              style="background: #2a220e; color: #fce79a; border: 1px solid rgba(212, 175, 55, 0.6);"
+            >
+              <span>🔥 Daily Logs</span>
+            </button>
+            <button
+              type="button"
+              id="streak-btn-good"
+              onclick="setCalendarStreakMode('good')"
+              class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-medium transition flex items-center justify-center gap-1 text-zinc-400 hover:text-emerald-300"
+            >
+              <span>🌿 Good Days</span>
+            </button>
+            <button
+              type="button"
+              id="streak-btn-mod"
+              onclick="setCalendarStreakMode('mod')"
+              class="cal-streak-mode-btn py-1.5 px-2 rounded-md text-[11px] font-medium transition flex items-center justify-center gap-1 text-zinc-400 hover:text-amber-300"
+            >
+              <span>⚖️ Moderate</span>
+            </button>
+          </div>
+
+          <!-- Streak Explanatory Note / Status -->
+          <div id="cal-streak-status-desc" class="text-[11px] px-2.5 py-1.5 rounded bg-black/30 border border-white/5 flex items-center justify-between text-zinc-300">
+            <span id="cal-streak-desc-text" class="text-zinc-400 text-[10px]">Consecutive days with any check-in journal logged.</span>
+            <span id="cal-streak-active-count" class="font-mono font-bold text-amber-300 ml-2 shrink-0 text-xs">0 days active</span>
           </div>
         </div>
 
@@ -1479,6 +1527,237 @@
     // BLACK & GOLD THEME WELLBEING CALENDAR DRAWER
     // =========================================================================
     let calendarDate = new Date();
+    let currentStreakMode = 'daily'; // 'daily' | 'good' | 'mod'
+    let calculatedStreaks = {
+      daily: { current: 0, best: 0 },
+      good: { current: 0, best: 0 },
+      mod: { current: 0, best: 0 }
+    };
+
+    function computeStudentStreaks(historyData) {
+      if (!historyData || !Array.isArray(historyData) || historyData.length === 0) {
+        return {
+          daily: { current: 0, best: 0 },
+          good: { current: 0, best: 0 },
+          mod: { current: 0, best: 0 }
+        };
+      }
+
+      // Collect unique dates and classify them
+      const dayData = {}; // 'YYYY-MM-DD' -> { logged: true, isGood: bool, isMod: bool, isHigh: bool }
+      historyData.forEach(item => {
+        const dKey = item.timestamp ? item.timestamp.split('T')[0] : (item.date || '');
+        if (!dKey) return;
+        
+        const score = item.stress_score ?? (
+          (item.risk_level === 'HIGH' || item.risk === 'HIGH') ? 90 : 
+          (item.risk_level === 'MEDIUM' || item.risk === 'MEDIUM') ? 65 : 30
+        );
+        const isHigh = (score >= 70) || (item.risk_level === 'HIGH') || (item.risk === 'HIGH') || (item.mood_score <= 1);
+        const isMod = (!isHigh) && ((score >= 45) || (item.risk_level === 'MEDIUM') || (item.risk === 'MEDIUM') || (item.mood_score <= 3));
+        const isGood = (!isHigh) && (!isMod);
+
+        // Keep highest distress or most detailed entry per date
+        if (!dayData[dKey]) {
+          dayData[dKey] = { logged: true, isGood, isMod, isHigh, score };
+        }
+      });
+
+      // Helper to format Date to YYYY-MM-DD using local time
+      function formatDateLocal(d) {
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+      }
+
+      const now = new Date();
+      const todayKey = formatDateLocal(now);
+      const yesterday = new Date(now);
+      yesterday.setDate(yesterday.getDate() - 1);
+      const yesterdayKey = formatDateLocal(yesterday);
+
+      // 1. Calculate Active Streaks (consecutive days ending today or yesterday)
+      function getActiveStreak(predicate) {
+        let streak = 0;
+        let checkDate = new Date(now);
+        
+        const hasToday = dayData[todayKey] && predicate(dayData[todayKey]);
+        const hasYesterday = dayData[yesterdayKey] && predicate(dayData[yesterdayKey]);
+
+        if (hasToday) {
+          while (true) {
+            const key = formatDateLocal(checkDate);
+            if (dayData[key] && predicate(dayData[key])) {
+              streak++;
+              checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+              break;
+            }
+          }
+        } else if (hasYesterday) {
+          checkDate = new Date(yesterday);
+          while (true) {
+            const key = formatDateLocal(checkDate);
+            if (dayData[key] && predicate(dayData[key])) {
+              streak++;
+              checkDate.setDate(checkDate.getDate() - 1);
+            } else {
+              break;
+            }
+          }
+        }
+        return streak;
+      }
+
+      // 2. Calculate Best (All-Time Record) Streak
+      function getBestStreak(predicate) {
+        const sortedKeys = Object.keys(dayData).sort();
+        if (sortedKeys.length === 0) return 0;
+
+        let maxStreak = 0;
+        let currentRun = 0;
+        let prevDateObj = null;
+
+        sortedKeys.forEach(k => {
+          const entry = dayData[k];
+          if (predicate(entry)) {
+            const parts = k.split('-').map(Number);
+            const curDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+
+            if (prevDateObj) {
+              const diffMs = curDateObj.getTime() - prevDateObj.getTime();
+              const diffDays = Math.round(diffMs / (1000 * 3600 * 24));
+              if (diffDays === 1) {
+                currentRun++;
+              } else if (diffDays > 1) {
+                currentRun = 1;
+              }
+            } else {
+              currentRun = 1;
+            }
+            prevDateObj = curDateObj;
+            if (currentRun > maxStreak) maxStreak = currentRun;
+          } else {
+            currentRun = 0;
+            prevDateObj = null;
+          }
+        });
+        return maxStreak;
+      }
+
+      const dailyActive = getActiveStreak(e => e.logged);
+      const dailyBest = Math.max(dailyActive, getBestStreak(e => e.logged));
+
+      const goodActive = getActiveStreak(e => e.isGood);
+      const goodBest = Math.max(goodActive, getBestStreak(e => e.isGood));
+
+      const modActive = getActiveStreak(e => e.isMod);
+      const modBest = Math.max(modActive, getBestStreak(e => e.isMod));
+
+      return {
+        daily: { current: dailyActive, best: dailyBest },
+        good: { current: goodActive, best: goodBest },
+        mod: { current: modActive, best: modBest }
+      };
+    }
+
+    function setCalendarStreakMode(mode) {
+      currentStreakMode = mode || 'daily';
+      
+      const streakTitle = document.getElementById('cal-stat-streak-title');
+      const streakVal = document.getElementById('cal-stat-streak');
+      const bestBadge = document.getElementById('cal-streak-best-badge');
+      const descText = document.getElementById('cal-streak-desc-text');
+      const countText = document.getElementById('cal-streak-active-count');
+
+      // Reset button states
+      ['daily', 'good', 'mod'].forEach(m => {
+        const btn = document.getElementById('streak-btn-' + m);
+        if (btn) {
+          btn.style.background = 'transparent';
+          btn.style.color = '#a1a1aa';
+          btn.style.border = '1px solid transparent';
+          btn.classList.remove('shadow-sm');
+        }
+      });
+
+      const activeBtn = document.getElementById('streak-btn-' + currentStreakMode);
+
+      if (currentStreakMode === 'daily') {
+        const cur = calculatedStreaks.daily.current;
+        const best = calculatedStreaks.daily.best;
+        if (streakTitle) streakTitle.textContent = 'Daily Log Streak';
+        if (streakVal) {
+          streakVal.innerHTML = `🔥 ${cur}d`;
+          streakVal.style.color = '#fce79a';
+        }
+        if (bestBadge) {
+          bestBadge.textContent = `All-Time: ${best}d`;
+          bestBadge.className = 'text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30';
+        }
+        if (descText) descText.textContent = 'Consecutive days with any check-in journal logged.';
+        if (countText) {
+          countText.textContent = `${cur} day${cur === 1 ? '' : 's'} active`;
+          countText.className = 'font-mono font-bold text-amber-300 ml-2 shrink-0 text-xs';
+        }
+        if (activeBtn) {
+          activeBtn.style.background = '#2a220e';
+          activeBtn.style.color = '#fce79a';
+          activeBtn.style.border = '1px solid rgba(212, 175, 55, 0.6)';
+        }
+      } else if (currentStreakMode === 'good') {
+        const cur = calculatedStreaks.good.current;
+        const best = calculatedStreaks.good.best;
+        if (streakTitle) streakTitle.textContent = 'Good Days Streak';
+        if (streakVal) {
+          streakVal.innerHTML = `🌿 ${cur}d`;
+          streakVal.style.color = '#6ee7b7';
+        }
+        if (bestBadge) {
+          bestBadge.textContent = `All-Time: ${best}d`;
+          bestBadge.className = 'text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30';
+        }
+        if (descText) descText.textContent = 'Consecutive days with Low Stress (<45 pts) & balanced wellbeing.';
+        if (countText) {
+          countText.textContent = `${cur} day${cur === 1 ? '' : 's'} active`;
+          countText.className = 'font-mono font-bold text-emerald-300 ml-2 shrink-0 text-xs';
+        }
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(16, 185, 129, 0.25)';
+          activeBtn.style.color = '#6ee7b7';
+          activeBtn.style.border = '1px solid rgba(16, 185, 129, 0.6)';
+        }
+      } else if (currentStreakMode === 'mod') {
+        const cur = calculatedStreaks.mod.current;
+        const best = calculatedStreaks.mod.best;
+        if (streakTitle) streakTitle.textContent = 'Moderate Streak';
+        if (streakVal) {
+          streakVal.innerHTML = `⚖️ ${cur}d`;
+          streakVal.style.color = '#fcd34d';
+        }
+        if (bestBadge) {
+          bestBadge.textContent = `All-Time: ${best}d`;
+          bestBadge.className = 'text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30';
+        }
+        if (descText) descText.textContent = 'Consecutive days in Moderate Stress range (45–69 pts).';
+        if (countText) {
+          countText.textContent = `${cur} day${cur === 1 ? '' : 's'} active`;
+          countText.className = 'font-mono font-bold text-amber-300 ml-2 shrink-0 text-xs';
+        }
+        if (activeBtn) {
+          activeBtn.style.background = 'rgba(217, 119, 6, 0.25)';
+          activeBtn.style.color = '#fcd34d';
+          activeBtn.style.border = '1px solid rgba(217, 119, 6, 0.6)';
+        }
+      }
+    }
+
+    function cycleStreakMode() {
+      const modes = ['daily', 'good', 'mod'];
+      const nextIdx = (modes.indexOf(currentStreakMode) + 1) % modes.length;
+      setCalendarStreakMode(modes[nextIdx]);
+    }
 
     function openCalendarDrawer() {
       const container = document.getElementById('calendar-drawer-container');
@@ -1630,15 +1909,16 @@
         grid.appendChild(cell);
       }
 
-      // Update Summary Stats
+      // Update Summary Stats & Calculated Streaks
       const totalEl = document.getElementById('cal-stat-total');
       if (totalEl) totalEl.textContent = monthlyLogs;
 
       const avgEl = document.getElementById('cal-stat-avg');
       if (avgEl) avgEl.textContent = monthlyLogs > 0 ? Math.round(totalStress / monthlyLogs) + '%' : '--';
 
-      const streakEl = document.getElementById('cal-stat-streak');
-      if (streakEl) streakEl.textContent = (historyData ? Math.min(historyData.length, 7) : 0) + 'd streak';
+      // Compute and update all streak modes
+      calculatedStreaks = computeStudentStreaks(historyData);
+      setCalendarStreakMode(currentStreakMode);
 
       // Auto-select today or current day
       selectCalendarDay(todayKey, today.getDate(), dateMap[todayKey]);
@@ -2388,55 +2668,92 @@
         document.getElementById('ai-sleep-action-rule').textContent = sleep.actionable_sleep_rule || '';
       }
 
-      // IDENTIFIED PROBLEMS & REMEDIES
+      // IDENTIFIED PROBLEMS & REMEDIES (STRICTLY SYNCED WITH STRESS LEVEL)
       const problemsFeed = document.getElementById('problems-remedies-feed');
       problemsFeed.innerHTML = '';
       const problems = data.identified_problems || [];
-      document.getElementById('problem-count-pill').textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated`;
+      const isHigh = (score >= 70) || (data.risk_level === 'HIGH');
+      const isMod = (!isHigh) && ((score >= 45) || (data.risk_level === 'MEDIUM'));
+      
+      const countPill = document.getElementById('problem-count-pill');
+      if (countPill) {
+        if (isHigh) {
+          countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40';
+          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • ⚡ High Stress Triage Active`;
+        } else if (isMod) {
+          countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40';
+          countPill.textContent = `${problems.length} Problem${problems.length === 1 ? '' : 's'} Isolated • ⚠️ Moderate Stress Pacing`;
+        } else {
+          countPill.className = 'px-2.5 py-1 rounded text-xs font-semibold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+          countPill.textContent = `${problems.length} Focus Area${problems.length === 1 ? '' : 's'} • 🛡️ Balanced Wellbeing Routine`;
+        }
+      }
 
       if (problems.length === 0) {
         problemsFeed.innerHTML = `
           <div class="panel p-6 rounded-xl text-center text-xs opacity-70">
-            No severe isolated problems detected from the journal input.
+            No isolated friction points detected. Current state reflects optimal wellbeing.
           </div>
         `;
       } else {
         problems.forEach((p, idx) => {
           const card = document.createElement('div');
-          card.className = 'panel panel-card-glow p-5 rounded-xl space-y-3.5';
           
-          const sevColor = p.severity === 'Severe' ? 'text-red-400' : p.severity === 'Moderate' ? 'text-amber-400' : 'opacity-70';
+          let cardBorderClass = 'border-l-4 border-l-emerald-500';
+          let sevColor = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+          let remedyBadge = '✨ Daily Mindful Reflection';
+          
+          if (p.severity === 'Severe' || isHigh) {
+            cardBorderClass = 'border-l-4 border-l-red-500 shadow-[0_0_15px_rgba(239,68,68,0.12)]';
+            sevColor = 'bg-red-500/25 text-red-300 border border-red-500/40 font-bold';
+            remedyBadge = '⚡ Immediate Physiological Circuit Breaker';
+          } else if (p.severity === 'Moderate' || isMod) {
+            cardBorderClass = 'border-l-4 border-l-amber-500';
+            sevColor = 'bg-amber-500/25 text-amber-300 border border-amber-500/40 font-semibold';
+            remedyBadge = '⏱️ 5-Minute Practical Reset';
+          }
+
+          card.className = `panel panel-card-glow p-5 rounded-xl space-y-3.5 ${cardBorderClass}`;
 
           card.innerHTML = `
             <!-- Top Row: Problem Headline directly, with category/severity inline -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5" style="border-color: var(--border);">
-              <h4 class="text-sm font-semibold">${escapeHtml(p.problem)}</h4>
+              <h4 class="text-sm font-bold text-zinc-100">${escapeHtml(p.problem)}</h4>
               <div class="flex items-center space-x-2 text-xs">
                 <span class="opacity-60 font-mono">#${idx + 1}</span>
-                <span class="opacity-70 uppercase tracking-wider text-[11px] font-medium">${escapeHtml(p.category || 'General')}</span>
-                <span class="panel-subtle px-2 py-0.5 rounded text-[10px] font-medium ${sevColor}">${escapeHtml(p.severity || 'Moderate')}</span>
+                <span class="opacity-80 uppercase tracking-wider text-[11px] font-semibold">${escapeHtml(p.category || 'General')}</span>
+                <span class="px-2.5 py-0.5 rounded text-[10px] ${sevColor}">${escapeHtml(p.severity || (isHigh ? 'Severe' : isMod ? 'Moderate' : 'Mild'))}</span>
               </div>
             </div>
 
             <!-- Two-column solution breakdown -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
               
-              <div class="panel-subtle panel-subtle-glow rounded-lg p-3.5 space-y-1">
-                <span class="text-[11px] font-semibold opacity-80 uppercase tracking-wider block">Immediate Remedy (2-5 Min Reset)</span>
-                <p class="text-xs opacity-90 leading-relaxed">${escapeHtml(p.immediate_remedy)}</p>
+              <div class="panel-subtle panel-subtle-glow rounded-lg p-3.5 space-y-1.5 border" style="border-color: ${isHigh ? 'rgba(239, 68, 68, 0.3)' : 'var(--border)'};">
+                <div class="flex items-center justify-between">
+                  <span class="text-[11px] font-bold opacity-90 uppercase tracking-wider block ${isHigh ? 'text-red-400' : isMod ? 'text-amber-400' : 'text-emerald-400'}">${remedyBadge}</span>
+                </div>
+                <p class="text-xs opacity-95 leading-relaxed font-medium">${escapeHtml(p.immediate_remedy)}</p>
               </div>
 
-              <div class="panel-subtle rounded-lg p-3.5 space-y-1">
-                <span class="text-[11px] font-semibold opacity-80 uppercase tracking-wider block">Actionable Solution</span>
+              <div class="panel-subtle rounded-lg p-3.5 space-y-1.5 border" style="border-color: var(--border);">
+                <span class="text-[11px] font-bold opacity-80 uppercase tracking-wider block text-amber-300">Actionable Solution (Root Strategy)</span>
                 <p class="text-xs opacity-90 leading-relaxed">${escapeHtml(p.actionable_solution)}</p>
               </div>
 
             </div>
 
             ${p.suggested_exercise ? `
-              <div class="panel-subtle rounded-lg px-3 py-2 text-xs flex items-baseline gap-2">
-                <span class="opacity-70 font-medium shrink-0">Practice Protocol:</span>
-                <span class="opacity-90">${escapeHtml(p.suggested_exercise)}</span>
+              <div class="panel-subtle rounded-lg px-3.5 py-2.5 text-xs flex items-center justify-between gap-2 border" style="border-color: var(--border);">
+                <div class="flex items-center gap-2">
+                  <span class="font-bold opacity-75 shrink-0 uppercase tracking-wider text-[10px] ${isHigh ? 'text-red-400' : 'text-amber-400'}">Prescribed Protocol:</span>
+                  <span class="opacity-90 font-medium">${escapeHtml(p.suggested_exercise)}</span>
+                </div>
+                ${(isHigh && !p.suggested_exercise.toLowerCase().includes('box')) ? '' : `
+                  <button type="button" onclick="toggleBreathing(true)" class="px-2 py-0.5 rounded text-[10px] font-semibold panel-subtle hover:text-amber-300 transition">
+                    Start Guide &rarr;
+                  </button>
+                `}
               </div>
             ` : ''}
 

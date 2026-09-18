@@ -113,10 +113,22 @@ Adhere strictly to this schema:
   ]
 }
 
-Triage Criteria:
-- HIGH risk: suicidal ideation, severe hopelessness, self-harm, extreme despair, or inability to cope. ALWAYS set flag_for_counselor=true and stress_score >= 85.
-- MEDIUM risk: academic burnout, persistent anxiety, feeling overwhelmed, severe insomnia, loneliness. Set stress_score between 50 and 84.
-- LOW risk: normal semester stress, standard deadlines, or stable mood. Set stress_score between 5 and 49.
+Triage Criteria & Strict Synchronization Rules:
+- HIGH risk / High Distress (stress_score >= 70):
+  * EVERY identified problem MUST have severity = "Severe".
+  * The immediate_remedy MUST be an acute physiological circuit breaker (e.g. stop studying immediately, 4-4-4-4 Box Breathing, cold water wash, 5-4-3-2-1 sensory grounding).
+  * The actionable_solution MUST prioritize immediate decompression, asking for extensions, mandatory 8-hour sleep recovery, and seeking counselor support.
+  * The suggested_exercise MUST be "Box Breathing (4-4-4-4)" or "5-4-3-2-1 Sensory Grounding".
+- MEDIUM risk / Moderate Stress (stress_score between 45 and 69):
+  * Identified problems MUST have severity = "Moderate".
+  * The immediate_remedy MUST be a practical 5-minute study reset (e.g. 3-minute Brain Dump on paper, physical stretching, glass of water).
+  * The actionable_solution MUST focus on 25/5 Pomodoro intervals, task prioritization, and contacting TA/instructor.
+  * The suggested_exercise MUST be "Pomodoro Technique (25m study / 5m rest)" or "Progressive Muscle Relaxation".
+- LOW risk / Optimal Wellbeing (stress_score < 45):
+  * Identified problems MUST have severity = "Mild" focusing on routine maintenance and steady learning.
+  * The immediate_remedy MUST focus on mindful gratitude, positive reflection, and deep breathing.
+  * The actionable_solution MUST focus on sustaining healthy sleep and steady study momentum.
+  * The suggested_exercise MUST be "Habit Pacing & Mindful Reflection".
 - For EVERY identified problem, the immediate_remedy MUST be doable in 5 minutes, and the actionable_solution MUST be concrete and constructive.
 - Maintain an encouraging, compassionate, non-judgmental tone."""
 
@@ -308,90 +320,216 @@ def _call_claude(journal_text: str, mood_score: int, sleep_records: Optional[lis
     return _parse_json(raw_text)
 
 
-def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list] = None) -> dict:
+def generate_synced_problems(journal_text: str, mood_score: int, stress_score: int, risk_level: str) -> list:
     """
-    Intelligent heuristic assessment generator when no API key is set.
-    Dynamically identifies problems from journal content and pairs them with remedies & solutions.
+    Dynamically isolates problems from the journal text and generates immediate remedies,
+    actionable solutions, and exercises that are STRICTLY SYNCHRONIZED with the calculated stress level.
     """
     text_lower = journal_text.lower()
-    identified_problems = []
-    stressors = []
-
+    is_high = (stress_score >= 70) or (risk_level == "HIGH") or (mood_score <= 1)
+    is_moderate = (not is_high) and ((stress_score >= 45) or (risk_level == "MEDIUM") or (mood_score <= 3))
+    severity = "Severe" if is_high else ("Moderate" if is_moderate else "Mild")
+    
+    problems = []
+    
     # 1. Academic & Deadline Stressors
-    if any(w in text_lower for w in ["exam", "test", "study", "homework", "assignment", "grade", "gpa", "deadline", "class", "thesis", "fail", "midterm"]):
-        stressors.append("Academic Workload")
-        identified_problems.append({
-            "problem": "High academic workload and looming deadline pressure",
+    if any(w in text_lower for w in ["exam", "test", "study", "homework", "assignment", "grade", "gpa", "deadline", "class", "thesis", "fail", "midterm", "finals", "project", "quiz", "course", "professor"]):
+        if is_high:
+            prob_title = "Acute academic panic & impending deadline overload"
+            remedy = "Halt study activity right now. Disconnect from screens and do 4 cycles of 4-4-4-4 Box Breathing to downregulate acute autonomic distress."
+            solution = "Request a 48-hour emergency assignment extension from your professor/dean. Break tasks into a 'Must-Do vs Can-Wait' triage list and cap work at 9:00 PM."
+            exercise = "Box Breathing (4-4-4-4) & Emergency Triage Matrix"
+        elif is_moderate:
+            prob_title = "Elevated academic workload & deadline friction"
+            remedy = "Perform a 3-minute 'Brain Dump': list pending coursework on paper, circle only the single top priority for today, and stretch."
+            solution = "Implement 25-minute Pomodoro intervals with strict 5-minute movement pauses. Send a brief email to your TA/instructor for targeted assignment clarification."
+            exercise = "Pomodoro Technique (25m study / 5m rest) & Progressive Muscle Relaxation"
+        else:
+            prob_title = "Daily coursework pacing & continuous learning focus"
+            remedy = "Take a slow diaphragmatic breath, review your study checklist, and acknowledge one solid task completed today."
+            solution = "Maintain consistent study blocks, preserve designated evening rest buffers, and outline tomorrow's key deliverables in advance."
+            exercise = "Habit Pacing & Mindful Reflection"
+            
+        problems.append({
+            "problem": prob_title,
             "category": "Academic",
-            "severity": "Severe" if mood_score <= 2 else "Moderate",
-            "immediate_remedy": "Perform a 3-minute 'Brain Dump': write every pending assignment on paper, then circle ONLY the single top priority for today.",
-            "actionable_solution": "Break your largest task into 25-minute Pomodoro intervals. Send an email to your professor/TA requesting clarification or office hours early.",
-            "suggested_exercise": "Pomodoro Technique (25m study / 5m complete rest, 4 cycles maximum before a long break)"
+            "severity": severity,
+            "immediate_remedy": remedy,
+            "actionable_solution": solution,
+            "suggested_exercise": exercise
         })
 
-    # 2. Sleep & Physical Fatigue
-    if any(w in text_lower for w in ["sleep", "insomnia", "tired", "exhaust", "awake", "drowsy", "energy", "headache"]):
-        stressors.append("Sleep Deprivation & Fatigue")
-        identified_problems.append({
-            "problem": "Disrupted sleep patterns and physical exhaustion",
+    # 2. Sleep Deprivation & Physical Exhaustion
+    if any(w in text_lower for w in ["sleep", "insomnia", "tired", "exhaust", "awake", "drowsy", "energy", "headache", "fatigue", "restless", "drained"]):
+        if is_high:
+            prob_title = "Severe sleep deficit & physical nervous system exhaustion"
+            remedy = "Stop studying for the night. Drink cold water, dim all room lighting, and lie down with hands over abdomen for deep belly breathing."
+            solution = "Mandatory 8-hour recovery sleep tonight (studying exhausted reduces retention by over 50%). Zero screens 30m before bed; no caffeine after 2:00 PM."
+            exercise = "Non-Sleep Deep Rest (NSDR) & 10-Minute Guided Wind-Down"
+        elif is_moderate:
+            prob_title = "Disrupted sleep rhythm & accumulated physical fatigue"
+            remedy = "Stand up, drink a glass of water, and do 60 seconds of gentle shoulder rolls and slow exhales to release somatic tension."
+            solution = "Establish a strict 30-minute wind-down buffer tonight: turn off screens at 10:30 PM, keep room cool (68°F), and anchor a fixed morning wakeup time."
+            exercise = "Circadian Anchor Protocol & Gentle Body Scan"
+        else:
+            prob_title = "Physical energy maintenance & restorative rest balance"
+            remedy = "Do a quick 30-second spine and neck stretch to revitalize circulation."
+            solution = "Protect your current restorative sleep rhythm to sustain high cognitive stamina and steady mood throughout the semester."
+            exercise = "Postural Alignment & Hydration Check"
+            
+        problems.append({
+            "problem": prob_title,
             "category": "Sleep & Physical",
-            "severity": "Severe" if mood_score <= 2 else "Moderate",
-            "immediate_remedy": "Drink a glass of water, stand up, and do 60 seconds of gentle shoulder rolls and slow exhales to reset physical tension.",
-            "actionable_solution": "Establish a strict 30-minute wind-down buffer tonight: turn off screens at least 30 minutes before bed, keep lighting dim, and maintain a fixed wakeup time.",
-            "suggested_exercise": "Non-Sleep Deep Rest (NSDR) or 10-minute progressive muscle relaxation"
+            "severity": severity,
+            "immediate_remedy": remedy,
+            "actionable_solution": solution,
+            "suggested_exercise": exercise
         })
 
-    # 3. Emotional Overwhelm & Anxiety
-    if any(w in text_lower for w in ["overwhelm", "anxious", "anxiety", "panic", "stress", "crying", "scared", "pointless", "hopeless", "can't focus"]):
-        stressors.append("Emotional Overwhelm")
-        identified_problems.append({
-            "problem": "Mental overload and acute emotional anxiety",
+    # 3. Emotional Overwhelm, Panic & Anxiety
+    if any(w in text_lower for w in ["overwhelm", "anxious", "anxiety", "panic", "stress", "crying", "scared", "pointless", "hopeless", "can't focus", "cannot focus", "freaking out", "drowning", "hate", "suicide", "kill"]):
+        if is_high:
+            prob_title = "Critical emotional distress & cognitive overload"
+            remedy = "Practice 5-4-3-2-1 Sensory Grounding: name 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you taste. Call Tele-MANAS (14416) or campus support if distress persists."
+            solution = "Treat today as an emotional recovery day. Postpone all non-critical evaluations and meet with a campus wellbeing counselor."
+            exercise = "5-4-3-2-1 Grounding & Acute Crisis Outreach"
+        elif is_moderate:
+            prob_title = "Heightened mental worry & emotional strain"
+            remedy = "Take 3 deep physiological sighs (two quick inhales through the nose, one long slow exhale through the mouth)."
+            solution = "Separate controllable factors from uncontrollable ones on paper. Reframe catastrophic thoughts into realistic, verifiable facts."
+            exercise = "CBT Cognitive Restructuring Record & 4-7-8 Breathing"
+        else:
+            prob_title = "Daily emotional balance & resilience maintenance"
+            remedy = "Write down one positive interaction or personal accomplishment from your day."
+            solution = "Continue daily reflective journaling and setting healthy boundaries between academic work and personal downtime."
+            exercise = "Gratitude Log & Positive Reinforcement"
+            
+        problems.append({
+            "problem": prob_title,
             "category": "Emotional & Mental",
-            "severity": "Severe" if mood_score <= 2 else "Moderate",
-            "immediate_remedy": "Practice 5-4-3-2-1 Sensory Grounding: name 5 things you can see, 4 you touch, 3 you hear, 2 you smell, 1 you taste.",
-            "actionable_solution": "Separate controllable issues from uncontrollable ones on paper. Reframe catastrophic thoughts ('I will fail everything') into balanced facts ('I am struggling with this chapter, but I can ask for help').",
-            "suggested_exercise": "CBT Cognitive Thought Record & Box Breathing (4s in, 4s hold, 4s out, 4s hold)"
+            "severity": severity,
+            "immediate_remedy": remedy,
+            "actionable_solution": solution,
+            "suggested_exercise": exercise
         })
 
-    # 4. Social & Relational Isolation
-    if any(w in text_lower for w in ["lonely", "alone", "isolate", "friends", "roommate", "family", "left out", "nobody", "talk to"]):
-        stressors.append("Social Disconnection")
-        identified_problems.append({
-            "problem": "Feeling isolated or disconnected from campus social support",
+    # 4. Social Disconnection & Relational Tension
+    if any(w in text_lower for w in ["lonely", "alone", "isolate", "friends", "roommate", "family", "left out", "nobody", "talk to", "fight", "argument", "relationship", "parents"]):
+        if is_high:
+            prob_title = "Acute social isolation & feeling unsupported"
+            remedy = "Reach out immediately to one trusted person (family member, friend, peer mentor, or campus RA) and let them know you need company or a listening ear."
+            solution = "Schedule an in-person check-in with a campus peer counselor or resident director. You do not have to carry this distress alone."
+            exercise = "Emergency Social Connection & Guided Peer Support"
+        elif is_moderate:
+            prob_title = "Feeling disconnected from campus peer community"
+            remedy = "Send a quick low-friction text to a classmate or friend: 'Hey, taking a quick break, want to grab tea/coffee?'"
+            solution = "Plan one shared study session or meal this week. Attend a student organization meetup to build connection."
+            exercise = "Active Social Outreach Prompt"
+        else:
+            prob_title = "Social connection pacing & collaborative support"
+            remedy = "Share a word of encouragement or thanks with a friend or study partner."
+            solution = "Maintain active social contact and healthy balance between solo focused study and collaborative peer interaction."
+            exercise = "Reciprocal Appreciation Reflection"
+            
+        problems.append({
+            "problem": prob_title,
             "category": "Social & Relational",
-            "severity": "Moderate",
-            "immediate_remedy": "Send a short low-pressure message to one trusted friend, family member, or classmate (e.g. 'Hey, just checking in!').",
-            "actionable_solution": "Schedule one in-person study session or walk this week. Visit a campus peer support circle or university student club meeting.",
-            "suggested_exercise": "Active Connection Prompt & Campus Peer Counseling drop-in"
+            "severity": severity,
+            "immediate_remedy": remedy,
+            "actionable_solution": solution,
+            "suggested_exercise": exercise
         })
 
-    # Fallback if no specific keyword matched
-    if not identified_problems:
-        if mood_score <= 2:
-            stressors.append("General Fatigue")
-            identified_problems.append({
-                "problem": "Elevated fatigue and persistent stress",
+    # 5. Fallback Problem
+    if not problems:
+        if is_high:
+            problems.append({
+                "problem": "Severe generalized distress & energy depletion",
+                "category": "General",
+                "severity": "Severe",
+                "immediate_remedy": "Step away from all work. Drink a glass of water, sit comfortably, and breathe slowly for 3 minutes.",
+                "actionable_solution": "Prioritize immediate rest, food, hydration, and contact a campus counselor or Tele-MANAS (14416).",
+                "suggested_exercise": "Vagus Nerve Decompression & 4-4-4-4 Box Breathing"
+            })
+        elif is_moderate:
+            problems.append({
+                "problem": "Moderate semester strain & focus dispersion",
                 "category": "General",
                 "severity": "Moderate",
-                "immediate_remedy": "Take a 5-minute screen-free pause. Step outside for fresh air and natural sunlight.",
-                "actionable_solution": "Prioritize your core necessities: ensure you have had a solid meal, hydrate, and outline 1 achievable goal for the rest of today.",
-                "suggested_exercise": "Mindful Walking or 5-Minute Guided Reset"
+                "immediate_remedy": "Take a 5-minute screen-free walk. Step outside for natural sunlight and fresh air.",
+                "actionable_solution": "Organize your remaining tasks by priority and set a firm stopping time for this evening.",
+                "suggested_exercise": "Mindful Walking & Priority Time-Blocking"
             })
         else:
-            stressors.append("Routine Academic Maintenance")
-            identified_problems.append({
-                "problem": "Daily semester pacing and focus maintenance",
+            problems.append({
+                "problem": "Routine semester pacing & focus maintenance",
                 "category": "General",
                 "severity": "Mild",
-                "immediate_remedy": "Take a slow, deep breath, stretch your spine, and write down one thing that went well today.",
+                "immediate_remedy": "Take a slow, deep breath, stretch your spine, and write down one win from today.",
                 "actionable_solution": "Maintain your steady momentum by preserving designated breaks and keeping a balanced daily routine.",
                 "suggested_exercise": "Gratitude Reflection & Habit Pacing"
             })
+            
+    return problems
+
+
+def sync_problems_with_stress(problems: list, stress_score: int, risk_level: str, journal_text: str = "") -> list:
+    """
+    Guarantees that all problems, severities, immediate remedies, and solutions are
+    100% harmonized with the calculated stress score and risk level.
+    """
+    is_high = (stress_score >= 70) or (risk_level == "HIGH")
+    is_moderate = (not is_high) and ((stress_score >= 45) or (risk_level == "MEDIUM"))
+    target_severity = "Severe" if is_high else ("Moderate" if is_moderate else "Mild")
+    
+    if not problems or not isinstance(problems, list):
+        return generate_synced_problems(journal_text, 3, stress_score, risk_level)
+    
+    synced = []
+    for p in problems:
+        if not isinstance(p, dict):
+            continue
+        p_copy = dict(p)
+        p_copy["severity"] = target_severity
+        
+        # If high stress, ensure remedy is an acute circuit breaker
+        if is_high and ("5-minute" in p_copy.get("immediate_remedy", "").lower() or "pomodoro" in p_copy.get("actionable_solution", "").lower()):
+            p_copy["immediate_remedy"] = "Halt work immediately. Practice 4-4-4-4 Box Breathing or 5-4-3-2-1 grounding to calm acute panic."
+            p_copy["actionable_solution"] = "Request a deadline extension; schedule mandatory 8-hour sleep recovery tonight; contact counselor."
+            p_copy["suggested_exercise"] = "Box Breathing (4-4-4-4) & Acute Decompression"
+        elif not is_high and not is_moderate and target_severity == "Mild":
+            if "crisis" in p_copy.get("immediate_remedy", "").lower() or "halt" in p_copy.get("immediate_remedy", "").lower():
+                p_copy["immediate_remedy"] = "Take a slow diaphragmatic breath and acknowledge one task completed today."
+                p_copy["actionable_solution"] = "Maintain regular study blocks and preserve restorative sleep buffers."
+                p_copy["suggested_exercise"] = "Habit Pacing & Mindful Reflection"
+                
+        synced.append(p_copy)
+        
+    return synced if synced else generate_synced_problems(journal_text, 3, stress_score, risk_level)
+
+
+def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list] = None) -> dict:
+    """
+    Intelligent heuristic assessment generator when no API key is set.
+    Dynamically identifies problems from journal content and pairs them with remedies & solutions
+    STRICTLY SYNCHRONIZED with the computed stress score.
+    """
+    text_lower = journal_text.lower()
+    stressors = []
+
+    # Detect primary stressors
+    if any(w in text_lower for w in ["exam", "test", "study", "homework", "assignment", "grade", "gpa", "deadline", "class", "thesis", "fail", "midterm", "finals", "project"]):
+        stressors.append("Academic Workload")
+    if any(w in text_lower for w in ["sleep", "insomnia", "tired", "exhaust", "awake", "drowsy", "energy", "headache", "fatigue", "restless", "drained"]):
+        stressors.append("Sleep Deprivation & Fatigue")
+    if any(w in text_lower for w in ["overwhelm", "anxious", "anxiety", "panic", "stress", "crying", "scared", "pointless", "hopeless", "can't focus", "cannot focus"]):
+        stressors.append("Emotional Overwhelm")
+    if any(w in text_lower for w in ["lonely", "alone", "isolate", "friends", "roommate", "family", "left out", "nobody", "talk to", "fight", "relationship"]):
+        stressors.append("Social Disconnection")
 
     # =========================================================================
     # WIDE-DYNAMIC-RANGE NATURAL LANGUAGE STRESS SCORING ENGINE
     # =========================================================================
-    # Clean words and tokens
     words = [re.sub(r'[^\w]', '', w) for w in text_lower.split()]
     words = [w for w in words if w]
     total_word_count = max(1, len(words))
@@ -477,7 +615,7 @@ def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list]
 
     blended = (text_stress_index * text_authority) + (mood_prior * (1.0 - text_authority))
 
-    # 5. Extract sleep database insights and evaluate biometrics impact
+    # Extract sleep database insights and evaluate biometrics impact
     sleep_insights = compute_sleep_insights(sleep_records, mood_score, 50, journal_text)
     
     # Biometric adjustment: sleep debt lowers cognitive coping buffer
@@ -518,6 +656,9 @@ def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list]
         stress_level = "Low / Optimal Wellbeing"
         flag_counselor = False
         resources = GENERAL_RESOURCES
+
+    # Generate problems, remedies, solutions, and exercises STRICTLY SYNCHRONIZED with stress_score
+    identified_problems = generate_synced_problems(journal_text, mood_score, stress_score, risk_level)
 
     # Context-Aware Dynamic Sentiment & Action Synthesis
     stressors_text = ", ".join(stressors[:2]) if stressors else "general workload"
@@ -612,6 +753,16 @@ def analyze_with_llm(journal_text: str, mood_score: int, sleep_records: Optional
         for res in CRISIS_RESOURCES:
             if res["title"] not in existing_titles:
                 result.setdefault("coping_resources", []).append(res)
+
+    # STRICT SYNCHRONIZATION: Guarantee identified_problems and solutions match final stress score & risk level
+    final_score = result.get("stress_assessment", {}).get("stress_score", 50)
+    final_risk = result.get("risk_level", "LOW")
+    result["identified_problems"] = sync_problems_with_stress(
+        result.get("identified_problems", []),
+        final_score,
+        final_risk,
+        journal_text
+    )
 
     return result
 

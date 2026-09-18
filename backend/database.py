@@ -7,7 +7,7 @@ module for a SQLite-backed version (see the README for the upgrade path)
 without touching main.py, since main.py only calls the functions below.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import List, Dict
 
 # Each record: {student_id, date, timestamp, journal_text, mood_score, risk_level,
@@ -27,6 +27,74 @@ DEFAULT_SLEEP_DATA: List[Dict] = [
     {"day": "Sat", "hours": 8.5, "quality": "Optimal", "notes": "Restful recovery"},
     {"day": "Sun", "hours": 7.5, "quality": "Good", "notes": "Balanced bedtime"},
 ]
+
+
+def _seed_initial_records():
+    now = datetime.now(timezone.utc)
+    seed_days = [
+        # (day_offset, student_id, mood, stress, risk, text, problems)
+        (0, "student_042", 4, 28, "LOW", "Feeling focused and clear-headed. Finished the morning project sprint on schedule.", [
+            {"problem": "Coursework pacing", "category": "Academic", "severity": "Mild", "immediate_remedy": "Diaphragmatic breath and celebrate completed milestone.", "actionable_solution": "Maintain steady study blocks and designated rest buffers.", "suggested_exercise": "Habit Pacing & Mindful Reflection"}
+        ]),
+        (1, "student_042", 4, 32, "LOW", "Solid day in lab and good group discussion. Slept 8 hours last night.", [
+            {"problem": "Group project coordination", "category": "Academic", "severity": "Mild", "immediate_remedy": "Quick stretch and hydration check.", "actionable_solution": "Keep active communication with team.", "suggested_exercise": "Postural Alignment & Hydration Check"}
+        ]),
+        (2, "student_042", 5, 20, "LOW", "Thriving today! Exercise in the morning helped me concentrate throughout all lectures.", [
+            {"problem": "Physical stamina", "category": "Sleep & Physical", "severity": "Mild", "immediate_remedy": "Deep belly breathing and posture check.", "actionable_solution": "Sustain regular exercise schedule.", "suggested_exercise": "Postural Alignment & Hydration Check"}
+        ]),
+        (3, "student_042", 3, 58, "MEDIUM", "A bit stressed with upcoming midterms and project milestone due on Friday.", [
+            {"problem": "Elevated academic workload", "category": "Academic", "severity": "Moderate", "immediate_remedy": "3-minute Brain Dump on paper.", "actionable_solution": "Implement 25/5 Pomodoro intervals.", "suggested_exercise": "Pomodoro Technique (25m study / 5m rest)"}
+        ]),
+        (4, "student_042", 3, 62, "MEDIUM", "Tired from late night study session. Head hurts a little bit.", [
+            {"problem": "Sleep deficit & fatigue", "category": "Sleep & Physical", "severity": "Moderate", "immediate_remedy": "Glass of water and shoulder rolls.", "actionable_solution": "Wind-down buffer at 10:30 PM tonight.", "suggested_exercise": "Gentle Body Scan"}
+        ]),
+        (5, "student_042", 2, 85, "HIGH", "Felt panicked about the chemistry exam tomorrow. Overwhelmed by back-to-back quizzes.", [
+            {"problem": "Acute academic panic", "category": "Academic", "severity": "Severe", "immediate_remedy": "4-4-4-4 Box Breathing immediately.", "actionable_solution": "Request extension and do 8h recovery sleep tonight.", "suggested_exercise": "Box Breathing (4-4-4-4)"}
+        ]),
+        (6, "student_042", 3, 50, "MEDIUM", "Recovering from yesterday. Studied with a classmate at the library.", [
+            {"problem": "Academic workload pacing", "category": "Academic", "severity": "Moderate", "immediate_remedy": "5-minute walk outside.", "actionable_solution": "Focus on high-priority chapter only.", "suggested_exercise": "Pomodoro Technique"}
+        ]),
+        (7, "student_042", 4, 30, "LOW", "Weekend rest did wonders. Took a long walk and slept 9 hours.", [
+            {"problem": "Energy maintenance", "category": "Sleep & Physical", "severity": "Mild", "immediate_remedy": "Mindful gratitude reflection.", "actionable_solution": "Maintain consistent sleep window.", "suggested_exercise": "Gratitude Log"}
+        ]),
+        (8, "student_042", 5, 22, "LOW", "Great Sunday afternoon with friends. Ready for the week ahead.", [
+            {"problem": "Social connection", "category": "Social & Relational", "severity": "Mild", "immediate_remedy": "Diaphragmatic breath.", "actionable_solution": "Keep balanced study and leisure blocks.", "suggested_exercise": "Mindful Reflection"}
+        ]),
+        (9, "student_042", 4, 25, "LOW", "Started the week with strong momentum. Got positive feedback from prof.", [
+            {"problem": "Daily coursework pacing", "category": "Academic", "severity": "Mild", "immediate_remedy": "Celebrate small win.", "actionable_solution": "Outline tomorrow's tasks.", "suggested_exercise": "Habit Pacing"}
+        ]),
+        (10, "student_042", 4, 34, "LOW", "Finished reading assignments early. Calm and balanced evening.", [
+            {"problem": "Routine pacing", "category": "General", "severity": "Mild", "immediate_remedy": "Slow exhale.", "actionable_solution": "Sustain evening screen cutoff.", "suggested_exercise": "Habit Pacing"}
+        ]),
+        (11, "student_042", 3, 56, "MEDIUM", "Long lab session; hands and eyes feeling strained.", [
+            {"problem": "Physical fatigue", "category": "Sleep & Physical", "severity": "Moderate", "immediate_remedy": "Shoulder rolls and screen break.", "actionable_solution": "Pomodoro breaks every 30m.", "suggested_exercise": "Progressive Muscle Relaxation"}
+        ]),
+        (12, "student_042", 2, 82, "HIGH", "Felt overwhelmed by multiple deadlines piling up at once.", [
+            {"problem": "Cognitive overload", "category": "Emotional & Mental", "severity": "Severe", "immediate_remedy": "5-4-3-2-1 Sensory Grounding.", "actionable_solution": "Emergency triage of non-essential tasks.", "suggested_exercise": "5-4-3-2-1 Grounding"}
+        ]),
+    ]
+    
+    for offset, student_id, mood, stress, risk, text, problems in seed_days:
+        dt = now - timedelta(days=offset)
+        _records.append({
+            "student_id": student_id,
+            "date": dt.strftime("%Y-%m-%d"),
+            "timestamp": dt.isoformat(),
+            "journal_text": text,
+            "mood_score": mood,
+            "risk_level": risk,
+            "stress_score": stress,
+            "stress_level": "Critical / Severe" if risk == "HIGH" else ("Moderate Stress" if risk == "MEDIUM" else "Low / Manageable"),
+            "primary_stressors": ["Academic Workload" if "Academic" in problems[0]["category"] else "Physical Fatigue"],
+            "sentiment_summary": f"Reflective entry indicating {risk.lower()} distress state.",
+            "recommended_action": "Maintain healthy pacing and restorative rest." if risk != "HIGH" else "Engage acute decompression circuit breaker.",
+            "flag_for_counselor": (risk == "HIGH"),
+            "identified_problems": problems,
+            "coping_resources": [],
+            "sleep_insights": None
+        })
+
+_seed_initial_records()
 
 
 def get_sleep_history(student_id: str) -> List[Dict]:
