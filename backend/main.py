@@ -13,7 +13,11 @@ import time
 from dotenv import load_dotenv
 load_dotenv()  # must run before llm_service reads LLM_PROVIDER / API keys
 
+import os
+from pathlib import Path
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
 import json
@@ -36,12 +40,14 @@ app = FastAPI(
     version="1.0.0",
 )
 
+STATIC_DIR = Path(__file__).parent / "static"
+INDEX_HTML = STATIC_DIR / "index.html"
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 # ---------------------------------------------------------------------------
-# CORS (Phase 1): allow the local React frontend to call this API.
-# NOTE: allow_origins=["*"] is fine for a local demo/hackathon. Before any
-# real deployment, replace "*" with your actual frontend origin(s), e.g.
-# ["http://localhost:3000", "https://yourapp.vercel.app"], especially once
-# this handles real student data.
+# CORS (Phase 1): allow any client or local frontend to call this API.
 # ---------------------------------------------------------------------------
 app.add_middleware(
     CORSMiddleware,
@@ -63,7 +69,15 @@ async def log_requests(request: Request, call_next):
 
 @app.get("/")
 def root():
+    if INDEX_HTML.exists():
+        return FileResponse(str(INDEX_HTML))
     return {"status": "ok", "message": "Mental health check-in API is running."}
+
+
+@app.get("/api/health")
+def health():
+    return {"status": "ok", "message": "Mental health check-in API is running."}
+
 
 
 @app.post("/api/analyze", response_model=AnalysisResponse)
