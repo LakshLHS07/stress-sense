@@ -60,6 +60,11 @@ GENERAL_RESOURCES = [
         "url": "https://mindful.org/box-breathing",
     },
     {
+        "title": "Acoustic Noise & Frequency Therapy (Brown, Pink, White Noise & 432Hz)",
+        "description": "Clinically proven auditory soundscapes to quiet an overstimulated nervous system and relieve stress.",
+        "url": "https://mynoise.net/noiseMachines.php",
+    },
+    {
         "title": "Academic Peer Support",
         "description": "Connect with trained peer advisors for workload balancing strategies.",
         "url": "https://campus.edu/peer-support",
