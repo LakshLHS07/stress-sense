@@ -102,6 +102,26 @@
     html.light .panel-card-glow::before {
       display: none;
     }
+
+    /* Softened, minimized edge glow specifically for the generated section */
+    #results-container .panel-card-glow {
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+      box-shadow: 
+        0 0 0 1px rgba(212, 175, 55, 0.1),
+        0 0 15px -3px rgba(212, 175, 55, 0.16),
+        0 0 35px -6px rgba(234, 179, 8, 0.09),
+        0 15px 30px -10px rgba(0, 0, 0, 0.7) !important;
+    }
+    #results-container .panel-card-glow::before {
+      opacity: 0.35 !important;
+      filter: blur(8px) !important;
+      inset: -2px !important;
+    }
+    #results-container .panel-subtle-glow {
+      border: 1px solid rgba(212, 175, 55, 0.2) !important;
+      box-shadow: 0 0 10px -2px rgba(212, 175, 55, 0.12) !important;
+    }
+
     .panel-subtle {
       background-color: var(--panel-subtle);
       border: 1px solid var(--border);
