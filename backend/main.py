@@ -16,6 +16,7 @@ load_dotenv()  # must run before llm_service reads LLM_PROVIDER / API keys
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
+import json
 from models import CheckInRequest, AnalysisResponse
 from llm_service import analyze_with_llm
 import database
@@ -29,7 +30,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("mental_health_api")
 
-app = FastAPI(title="Student Mental Health Check-In API")
+app = FastAPI(
+    title="Student Mental Health Check-In API",
+    description="Backend service for student distress & burnout risk triage.",
+    version="1.0.0",
+)
 
 # ---------------------------------------------------------------------------
 # CORS (Phase 1): allow the local React frontend to call this API.
@@ -63,13 +68,12 @@ def root():
 
 @app.post("/api/analyze", response_model=AnalysisResponse)
 def analyze_checkin(payload: CheckInRequest):
-    logger.info(f"Incoming check-in | student_id={payload.student_id} mood={payload.mood_score} "
-                f"journal_len={len(payload.journal_text)}")
+    req_dict = payload.model_dump() if hasattr(payload, "model_dump") else payload.dict()
+    logger.info("--> [INCOMING REQUEST /api/analyze]\n%s", json.dumps(req_dict, indent=2))
 
     result = analyze_with_llm(payload.journal_text, payload.mood_score)
 
-    logger.info(f"Outgoing analysis | student_id={payload.student_id} "
-                f"risk={result['risk_level']} flagged={result['flag_for_counselor']}")
+    logger.info("<-- [OUTGOING PAYLOAD /api/analyze]\n%s", json.dumps(result, indent=2))
 
     database.save_checkin(
         student_id=payload.student_id,
@@ -79,6 +83,7 @@ def analyze_checkin(payload: CheckInRequest):
     )
 
     return result
+
 
 
 @app.get("/api/history/{student_id}")

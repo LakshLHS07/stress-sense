@@ -1,0 +1,12 @@
+# Root .gitignore
+.DS_Store
+*.py[cod]
+__pycache__/
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+.pytest_cache/

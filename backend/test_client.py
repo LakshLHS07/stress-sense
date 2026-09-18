@@ -37,11 +37,14 @@ def run(payload, label):
 
 
 if __name__ == "__main__":
-    run(high_stress_payload, "HIGH-STRESS ENTRY")
-    run(low_stress_payload, "LOW-STRESS ENTRY")
+    run(high_stress_payload, "TEST 1: HIGH-STRESS ENTRY (Crisis Triage / Flagging)")
+    run(low_stress_payload, "TEST 2: LOW-STRESS ENTRY (Normal Daily Check-In)")
 
-    print("\n--- History for student_042 ---")
-    print(requests.get("http://localhost:8000/api/history/student_042").json())
+    print("\n--- TEST 3: History Endpoint (/api/history/student_042) ---")
+    history_resp = requests.get("http://localhost:8000/api/history/student_042")
+    print(json.dumps(history_resp.json(), indent=2))
 
-    print("\n--- Counselor flags ---")
-    print(requests.get("http://localhost:8000/api/counselor/flags").json())
+    print("\n--- TEST 4: Counselor Urgent Flags Endpoint (/api/counselor/flags) ---")
+    flags_resp = requests.get("http://localhost:8000/api/counselor/flags")
+    print(json.dumps(flags_resp.json(), indent=2))
+
