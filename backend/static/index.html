@@ -173,6 +173,25 @@
       box-shadow: -10px 0 25px rgba(0, 0, 0, 0.08);
     }
 
+    /* Sleep Tracker slider drawer */
+    #sleep-drawer-panel {
+      border-left: 1px solid rgba(212, 175, 55, 0.28);
+      box-shadow: -8px 0 35px -5px rgba(212, 175, 55, 0.15), -20px 0 60px -10px rgba(0, 0, 0, 0.88);
+    }
+    html.light #sleep-drawer-panel {
+      border-left: 1px solid var(--border);
+      box-shadow: -10px 0 25px rgba(0, 0, 0, 0.08);
+    }
+    .sleep-point-dot {
+      cursor: pointer;
+      transition: transform 0.15s ease, r 0.15s ease;
+    }
+    .sleep-point-dot:hover {
+      r: 6;
+      stroke-width: 3;
+      filter: drop-shadow(0 0 6px #a3e635);
+    }
+
     .app-header {
       background-color: var(--header-bg);
       border-color: var(--border);
@@ -218,6 +237,20 @@
             <span id="flag-counter-pill" class="hidden px-1.5 py-0.2 rounded panel text-red-400 text-[10px] font-mono">0</span>
           </button>
         </nav>
+
+        <!-- Sleep Tracker Slider Button -->
+        <button
+          id="sleep-tracker-btn"
+          type="button"
+          onclick="openSleepDrawer()"
+          class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg panel transition text-xs font-medium"
+          title="Open Sleep Tracker & Analysis Slider"
+        >
+          <svg class="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+          </svg>
+          <span>Sleep Tracker</span>
+        </button>
 
         <!-- Dark / Light Mode Switch Button -->
         <button
@@ -368,6 +401,246 @@
       <!-- Drawer Footer -->
       <div class="p-3.5 border-t text-center text-[11px] opacity-60" style="border-color: var(--border);">
         History is tied to your local student session.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Slide-Over Slider Drawer: Sleep Tracker & Circadian Graph -->
+  <div id="sleep-drawer-container" class="fixed inset-0 z-50 pointer-events-none transition-opacity duration-300 opacity-0">
+    <!-- Backdrop Overlay -->
+    <div id="sleep-drawer-backdrop" onclick="closeSleepDrawer()" class="absolute inset-0 bg-black/60 transition-opacity cursor-pointer"></div>
+    
+    <!-- Drawer Panel Sliding From Right -->
+    <div id="sleep-drawer-panel" class="absolute inset-y-0 right-0 max-w-xl w-full panel shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-full overflow-hidden">
+      
+      <!-- Drawer Header -->
+      <div class="p-4 border-b flex items-center justify-between" style="border-color: var(--border);">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-8 h-8 rounded-lg panel-subtle flex items-center justify-center">
+            <svg class="w-4 h-4 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="text-sm font-semibold leading-tight">Sleep & Recovery Tracker</h3>
+              <span class="px-2 py-0.5 rounded text-[10px] font-mono panel text-amber-400">7-Day Trend</span>
+            </div>
+            <p class="text-[11px] opacity-60">Circadian rhythm tracking, sleep debt, and stress correlation</p>
+          </div>
+        </div>
+        <button
+          type="button"
+          onclick="closeSleepDrawer()"
+          class="p-1.5 rounded-lg panel-subtle transition"
+          title="Close sidebar"
+        >
+          <svg class="w-4 h-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Drawer Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto p-5 space-y-5">
+        
+        <!-- Sleep Graph Card (Style inspired by reference image) -->
+        <div class="panel-card-glow rounded-xl p-5 space-y-4">
+          <!-- Top Row: Metric & Title -->
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <span class="text-xs opacity-60 uppercase font-semibold tracking-wider block">Average Sleep Duration</span>
+              <div class="flex items-baseline gap-2.5 mt-1">
+                <span id="sleep-avg-hours" class="text-3xl font-bold font-mono tracking-tight text-zinc-100">7.3<span class="text-sm font-normal opacity-60">h</span></span>
+                <span id="sleep-trend-pill" class="px-2 py-0.5 rounded text-[11px] font-medium panel-subtle text-emerald-400">+0.6h vs baseline</span>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="text-xs opacity-60 block">Optimal Target</span>
+              <span class="text-xs font-mono font-semibold text-amber-400">7.5h – 8.5h / night</span>
+            </div>
+          </div>
+
+          <!-- The Smooth Area Curve Chart (SVG) -->
+          <div class="relative w-full overflow-hidden pt-1">
+            <div id="sleep-chart-tooltip" class="hidden absolute z-20 px-2.5 py-1.5 rounded-lg panel text-xs font-mono shadow-lg pointer-events-none transition-opacity -translate-x-1/2 -translate-y-full mb-2" style="border: 1px solid rgba(212, 175, 55, 0.4);">
+              <div id="tooltip-day" class="font-semibold text-amber-400"></div>
+              <div id="tooltip-stats" class="text-[11px] opacity-90"></div>
+            </div>
+            <svg id="sleep-area-chart" viewBox="0 0 460 210" class="w-full h-auto select-none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <!-- Neon gradient for the filled area underneath the curve -->
+                <linearGradient id="sleepAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#a3e635" stop-opacity="0.45" />
+                  <stop offset="60%" stop-color="#eab308" stop-opacity="0.15" />
+                  <stop offset="100%" stop-color="#09090b" stop-opacity="0.0" />
+                </linearGradient>
+                <!-- Neon gradient for the curve line stroke -->
+                <linearGradient id="sleepLineGradient" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#84cc16" />
+                  <stop offset="50%" stop-color="#a3e635" />
+                  <stop offset="100%" stop-color="#eab308" />
+                </linearGradient>
+                <!-- Drop shadow glow filter for the curve -->
+                <filter id="curveGlow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#a3e635" flood-opacity="0.4" />
+                </filter>
+              </defs>
+
+              <!-- Horizontal Grid Lines -->
+              <g stroke="var(--border)" stroke-dasharray="3 3" opacity="0.4">
+                <line x1="35" y1="35" x2="445" y2="35" />
+                <line x1="35" y1="75" x2="445" y2="75" />
+                <line x1="35" y1="115" x2="445" y2="115" />
+                <line x1="35" y1="155" x2="445" y2="155" />
+              </g>
+
+              <!-- Recommended Baseline Reference Line (7.5h) -->
+              <line x1="35" y1="85" x2="445" y2="85" stroke="#eab308" stroke-dasharray="4 4" stroke-width="1.2" opacity="0.6" />
+              <text x="440" y="81" text-anchor="end" font-size="9" fill="#eab308" opacity="0.85" font-mono>Target 7.5h</text>
+
+              <!-- Y-Axis Hour Labels -->
+              <g font-size="9" fill="var(--text-muted)" font-family="monospace" opacity="0.7">
+                <text x="30" y="38" text-anchor="end">10h</text>
+                <text x="30" y="78" text-anchor="end">8h</text>
+                <text x="30" y="118" text-anchor="end">6h</text>
+                <text x="30" y="158" text-anchor="end">4h</text>
+              </g>
+
+              <!-- Filled Area Under Curve -->
+              <path id="sleep-filled-area" fill="url(#sleepAreaGradient)" d="" />
+
+              <!-- Smooth Curve Line -->
+              <path id="sleep-curve-stroke" fill="none" stroke="url(#sleepLineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#curveGlow)" d="" />
+
+              <!-- Interactive Point Dots (Populated via JS) -->
+              <g id="sleep-point-dots"></g>
+
+              <!-- X-Axis Day Labels -->
+              <g id="sleep-x-labels" font-size="10" fill="var(--text-muted)" font-family="monospace" text-anchor="middle"></g>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Important Points / Clinical Analytics Section -->
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-semibold uppercase tracking-wider opacity-70">Important Sleep Analytics & Insights</h4>
+            <span class="text-[10px] opacity-50 font-mono">Clinical Protocol</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            
+            <!-- Insight 1: Sleep Debt -->
+            <div class="panel-subtle panel-subtle-glow rounded-xl p-3.5 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold opacity-80">Sleep Debt</span>
+                <span id="stat-sleep-debt" class="text-xs font-mono font-semibold text-amber-400">-1.4h Deficit</span>
+              </div>
+              <p class="text-[11px] opacity-70 leading-relaxed">
+                Mid-week study sessions created a modest deficit. 2 consecutive nights at 7.5h+ will restore cognitive focus.
+              </p>
+            </div>
+
+            <!-- Insight 2: Stress Correlation -->
+            <div class="panel-subtle panel-subtle-glow rounded-xl p-3.5 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold opacity-80">Stress Correlation</span>
+                <span class="text-xs font-mono font-semibold text-red-400">High (r = -0.82)</span>
+              </div>
+              <p class="text-[11px] opacity-70 leading-relaxed">
+                Journal stress spikes coincide directly with nights under 6.0 hours. Sleep is your highest-leverage buffer.
+              </p>
+            </div>
+
+            <!-- Insight 3: Deep & REM Sleep -->
+            <div class="panel-subtle panel-subtle-glow rounded-xl p-3.5 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold opacity-80">Deep Sleep Ratio</span>
+                <span class="text-xs font-mono font-semibold text-emerald-400">22% (Optimal)</span>
+              </div>
+              <p class="text-[11px] opacity-70 leading-relaxed">
+                Averaging 1h 40m of deep slow-wave sleep. Crucial for memory retention and physical rejuvenation.
+              </p>
+            </div>
+
+            <!-- Insight 4: Regularity Score -->
+            <div class="panel-subtle panel-subtle-glow rounded-xl p-3.5 space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="text-[11px] font-semibold opacity-80">Circadian Regularity</span>
+                <span class="text-xs font-mono font-semibold text-zinc-200">86% Consistent</span>
+              </div>
+              <p class="text-[11px] opacity-70 leading-relaxed">
+                Bedtime window: 11:30 PM - 12:15 AM. Consistent wake times anchor cortisol balance.
+              </p>
+            </div>
+
+          </div>
+
+          <!-- Sleep Hygiene Action Checklist -->
+          <div class="panel-subtle rounded-xl p-4 space-y-2.5">
+            <span class="text-[11px] font-semibold uppercase tracking-wider opacity-80 block">Recommended Sleep Hygiene Rules</span>
+            <ul class="space-y-1.5 text-xs opacity-80">
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0">&bull;</span>
+                <span><strong>Digital Sunset:</strong> Discontinue laptop & smartphone screens 30 minutes before sleep.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0">&bull;</span>
+                <span><strong>Caffeine Cutoff:</strong> Avoid coffee or energy drinks after 2:30 PM to preserve deep sleep architecture.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-amber-400 shrink-0">&bull;</span>
+                <span><strong>Pre-Bed Reset:</strong> Use the built-in Box Breathing exercise (4-4-4-4) in bed to trigger parasympathetic cooldown.</span>
+              </li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Interactive Quick Sleep Logger -->
+        <div class="panel-subtle rounded-xl p-4 space-y-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs font-semibold">Log Last Night's Sleep</h4>
+            <span id="log-hours-val" class="text-xs font-mono font-semibold text-amber-400">7.5 Hours</span>
+          </div>
+          <form onsubmit="handleLogSleep(event)" class="space-y-3">
+            <div class="space-y-1">
+              <input
+                type="range"
+                id="sleep-hours-slider"
+                min="3.5"
+                max="11.0"
+                step="0.5"
+                value="7.5"
+                class="w-full accent-amber-400 cursor-pointer"
+                oninput="document.getElementById('log-hours-val').textContent = this.value + ' Hours'"
+              />
+              <div class="flex justify-between text-[10px] opacity-50 font-mono">
+                <span>3.5h (Short)</span>
+                <span>7.5h (Optimal)</span>
+                <span>11.0h (Extended)</span>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-4 gap-2 pt-1">
+              <button type="button" onclick="setLogQuality('Restless')" class="quality-btn py-1.5 rounded panel text-[10px] font-medium text-center transition">Restless</button>
+              <button type="button" onclick="setLogQuality('Fair')" class="quality-btn py-1.5 rounded panel text-[10px] font-medium text-center transition">Fair</button>
+              <button type="button" onclick="setLogQuality('Good')" class="quality-btn quality-btn-active py-1.5 rounded panel-subtle text-[10px] font-semibold text-center transition" style="border: 1px solid rgba(212, 175, 55, 0.4);">Good</button>
+              <button type="button" onclick="setLogQuality('Optimal')" class="quality-btn py-1.5 rounded panel text-[10px] font-medium text-center transition">Optimal</button>
+            </div>
+
+            <button
+              type="submit"
+              class="w-full py-2 rounded-lg text-xs font-semibold transition"
+              style="background-color: var(--btn-primary-bg); color: var(--btn-primary-text);"
+            >
+              Update Sleep Record & Graph
+            </button>
+          </form>
+        </div>
+
       </div>
 
     </div>
@@ -720,10 +993,194 @@
       container.classList.add('pointer-events-none', 'opacity-0');
     }
 
-    // Keyboard escape closes drawer
+    // Keyboard escape closes drawers
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeProfileDrawer();
+      if (e.key === 'Escape') {
+        closeProfileDrawer();
+        closeSleepDrawer();
+      }
     });
+
+    // =========================================================================
+    // SLEEP TRACKER SLIDER DRAWER & SMOOTH AREA CHART
+    // =========================================================================
+    let selectedSleepQuality = 'Good';
+
+    function getSleepData() {
+      const id = getStudentId();
+      const stored = localStorage.getItem('stress_sense_sleep_' + id);
+      if (stored) {
+        try { return JSON.parse(stored); } catch(e) {}
+      }
+      return [
+        { day: 'Mon', hours: 6.8, quality: 'Fair', notes: 'Late study session' },
+        { day: 'Tue', hours: 5.5, quality: 'Restless', notes: 'Exam preparation' },
+        { day: 'Wed', hours: 7.8, quality: 'Good', notes: 'Recovered sleep' },
+        { day: 'Thu', hours: 6.2, quality: 'Fair', notes: 'Thesis writing' },
+        { day: 'Fri', hours: 7.4, quality: 'Good', notes: 'Weekend start' },
+        { day: 'Sat', hours: 8.5, quality: 'Optimal', notes: 'Restful recovery' },
+        { day: 'Sun', hours: 7.5, quality: 'Good', notes: 'Balanced bedtime' }
+      ];
+    }
+
+    function saveSleepData(data) {
+      const id = getStudentId();
+      localStorage.setItem('stress_sense_sleep_' + id, JSON.stringify(data));
+    }
+
+    function openSleepDrawer() {
+      const container = document.getElementById('sleep-drawer-container');
+      const panel = document.getElementById('sleep-drawer-panel');
+      container.classList.remove('pointer-events-none', 'opacity-0');
+      container.classList.add('pointer-events-auto', 'opacity-100');
+      panel.classList.remove('translate-x-full');
+      panel.classList.add('translate-x-0');
+
+      renderSleepChart();
+    }
+
+    function closeSleepDrawer() {
+      const container = document.getElementById('sleep-drawer-container');
+      const panel = document.getElementById('sleep-drawer-panel');
+      panel.classList.remove('translate-x-0');
+      panel.classList.add('translate-x-full');
+      container.classList.remove('pointer-events-auto', 'opacity-100');
+      container.classList.add('pointer-events-none', 'opacity-0');
+      hideSleepTooltip();
+    }
+
+    function setLogQuality(q) {
+      selectedSleepQuality = q;
+      document.querySelectorAll('.quality-btn').forEach(btn => {
+        if (btn.textContent.trim() === q) {
+          btn.className = 'quality-btn quality-btn-active py-1.5 rounded panel-subtle text-[10px] font-semibold text-center transition';
+          btn.style.border = '1px solid rgba(212, 175, 55, 0.4)';
+        } else {
+          btn.className = 'quality-btn py-1.5 rounded panel text-[10px] font-medium text-center transition';
+          btn.style.border = 'none';
+        }
+      });
+    }
+
+    function handleLogSleep(e) {
+      e.preventDefault();
+      const val = parseFloat(document.getElementById('sleep-hours-slider').value) || 7.5;
+      const data = getSleepData();
+      data[data.length - 1].hours = val;
+      data[data.length - 1].quality = selectedSleepQuality;
+      saveSleepData(data);
+      renderSleepChart();
+    }
+
+    function renderSleepChart() {
+      const data = getSleepData();
+      if (!data || data.length === 0) return;
+
+      const totalHours = data.reduce((acc, d) => acc + d.hours, 0);
+      const avg = (totalHours / data.length).toFixed(1);
+      document.getElementById('sleep-avg-hours').innerHTML = `${avg}<span class="text-sm font-normal opacity-60">h</span>`;
+
+      const targetTotal = data.length * 7.5;
+      const diff = totalHours - targetTotal;
+      const debtEl = document.getElementById('stat-sleep-debt');
+      if (diff >= 0) {
+        debtEl.textContent = `+${diff.toFixed(1)}h Surplus`;
+        debtEl.className = 'text-xs font-mono font-semibold text-emerald-400';
+      } else {
+        debtEl.textContent = `${diff.toFixed(1)}h Deficit`;
+        debtEl.className = 'text-xs font-mono font-semibold text-amber-400';
+      }
+
+      const startX = 45;
+      const endX = 435;
+      const startY = 25;
+      const endY = 175;
+      const minY = 3.0;
+      const maxY = 10.5;
+
+      const points = data.map((d, i) => {
+        const x = startX + i * ((endX - startX) / (data.length - 1));
+        const clampedH = Math.max(minY, Math.min(maxY, d.hours));
+        const y = endY - ((clampedH - minY) / (maxY - minY)) * (endY - startY);
+        return { x, y, data: d };
+      });
+
+      let linePath = `M ${points[0].x.toFixed(1)},${points[0].y.toFixed(1)}`;
+      for (let i = 0; i < points.length - 1; i++) {
+        const p0 = points[i - 1] || points[i];
+        const p1 = points[i];
+        const p2 = points[i + 1];
+        const p3 = points[i + 2] || p2;
+
+        const cp1x = p1.x + (p2.x - p0.x) / 6.0;
+        const cp1y = p1.y + (p2.y - p0.y) / 6.0;
+        const cp2x = p2.x - (p3.x - p1.x) / 6.0;
+        const cp2y = p2.y - (p3.y - p1.y) / 6.0;
+
+        linePath += ` C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+      }
+
+      const areaPath = `${linePath} L ${points[points.length - 1].x.toFixed(1)},185 L ${points[0].x.toFixed(1)},185 Z`;
+
+      const strokeEl = document.getElementById('sleep-curve-stroke');
+      const areaEl = document.getElementById('sleep-filled-area');
+      if (strokeEl) strokeEl.setAttribute('d', linePath);
+      if (areaEl) areaEl.setAttribute('d', areaPath);
+
+      const dotsGroup = document.getElementById('sleep-point-dots');
+      if (dotsGroup) {
+        dotsGroup.innerHTML = '';
+        points.forEach((pt) => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', pt.x.toFixed(1));
+          circle.setAttribute('cy', pt.y.toFixed(1));
+          circle.setAttribute('r', '4.5');
+          circle.setAttribute('fill', '#09090b');
+          circle.setAttribute('stroke', '#a3e635');
+          circle.setAttribute('stroke-width', '2.5');
+          circle.setAttribute('class', 'sleep-point-dot');
+
+          circle.addEventListener('mouseenter', (e) => showSleepTooltip(pt, e));
+          circle.addEventListener('mouseleave', hideSleepTooltip);
+          circle.addEventListener('click', (e) => showSleepTooltip(pt, e));
+
+          dotsGroup.appendChild(circle);
+        });
+      }
+
+      const xLabelsGroup = document.getElementById('sleep-x-labels');
+      if (xLabelsGroup) {
+        xLabelsGroup.innerHTML = '';
+        points.forEach((pt) => {
+          const txt = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          txt.setAttribute('x', pt.x.toFixed(1));
+          txt.setAttribute('y', '200');
+          txt.textContent = pt.data.day;
+          xLabelsGroup.appendChild(txt);
+        });
+      }
+    }
+
+    function showSleepTooltip(pt, event) {
+      const tooltip = document.getElementById('sleep-chart-tooltip');
+      const chart = document.getElementById('sleep-area-chart');
+      if (!tooltip || !chart) return;
+      const rect = chart.getBoundingClientRect();
+      
+      const px = (pt.x / 460) * rect.width;
+      const py = (pt.y / 210) * rect.height;
+
+      tooltip.style.left = px + 'px';
+      tooltip.style.top = py + 'px';
+      document.getElementById('tooltip-day').textContent = `${pt.data.day}: ${pt.data.hours}h Sleep`;
+      document.getElementById('tooltip-stats').textContent = `Quality: ${pt.data.quality} • ${pt.data.notes || 'Recorded'}`;
+      tooltip.classList.remove('hidden');
+    }
+
+    function hideSleepTooltip() {
+      const tooltip = document.getElementById('sleep-chart-tooltip');
+      if (tooltip) tooltip.classList.add('hidden');
+    }
 
     // Theme Management (Light / Dark)
     function initTheme() {
