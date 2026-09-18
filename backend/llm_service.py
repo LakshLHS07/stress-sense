@@ -46,6 +46,11 @@ CRISIS_RESOURCES = [
         "description": "24/7 toll-free crisis helpline by Ministry of Social Justice. Call 1800-599-0019.",
         "url": "http://www.kiranhelpline.in",
     },
+    {
+        "title": "Fun & Uplifting Music Therapy (Spotify Mood Booster)",
+        "description": "Upbeat, happy, and feel-good music on Spotify to release dopamine and break acute stress paralysis.",
+        "url": "https://open.spotify.com/genre/mood",
+    },
 ]
 
 GENERAL_RESOURCES = [
@@ -337,8 +342,8 @@ def generate_synced_problems(journal_text: str, mood_score: int, stress_score: i
         if is_high:
             prob_title = "Acute academic panic & impending deadline overload"
             remedy = "Halt study activity right now. Disconnect from screens and do 4 cycles of 4-4-4-4 Box Breathing to downregulate acute autonomic distress."
-            solution = "Request a 48-hour emergency assignment extension from your professor/dean. Break tasks into a 'Must-Do vs Can-Wait' triage list and cap work at 9:00 PM."
-            exercise = "Box Breathing (4-4-4-4) & Emergency Triage Matrix"
+            solution = "Request a 48-hour emergency extension from your professor. Put on fun/upbeat music on Spotify to release dopamine and reset your nervous system, and get mandatory 8h recovery sleep tonight."
+            exercise = "Box Breathing (4-4-4-4) & Fun Spotify Music Reset"
         elif is_moderate:
             prob_title = "Elevated academic workload & deadline friction"
             remedy = "Perform a 3-minute 'Brain Dump': list pending coursework on paper, circle only the single top priority for today, and stretch."
@@ -363,9 +368,9 @@ def generate_synced_problems(journal_text: str, mood_score: int, stress_score: i
     if any(w in text_lower for w in ["sleep", "insomnia", "tired", "exhaust", "awake", "drowsy", "energy", "headache", "fatigue", "restless", "drained"]):
         if is_high:
             prob_title = "Severe sleep deficit & physical nervous system exhaustion"
-            remedy = "Stop studying for the night. Drink cold water, dim all room lighting, and lie down with hands over abdomen for deep belly breathing."
-            solution = "Mandatory 8-hour recovery sleep tonight (studying exhausted reduces retention by over 50%). Zero screens 30m before bed; no caffeine after 2:00 PM."
-            exercise = "Non-Sleep Deep Rest (NSDR) & 10-Minute Guided Wind-Down"
+            remedy = "Stop studying for the night. Drink cold water, dim room lighting, put on relaxing or fun Spotify music, and lie down for deep belly breathing."
+            solution = "Mandatory 8-hour recovery sleep tonight (studying exhausted reduces retention by over 50%). Zero screens 30m before bed; unwind with feel-good songs on Spotify."
+            exercise = "Non-Sleep Deep Rest (NSDR) & Spotify Wind-Down"
         elif is_moderate:
             prob_title = "Disrupted sleep rhythm & accumulated physical fatigue"
             remedy = "Stand up, drink a glass of water, and do 60 seconds of gentle shoulder rolls and slow exhales to release somatic tension."
@@ -390,9 +395,9 @@ def generate_synced_problems(journal_text: str, mood_score: int, stress_score: i
     if any(w in text_lower for w in ["overwhelm", "anxious", "anxiety", "panic", "stress", "crying", "scared", "pointless", "hopeless", "can't focus", "cannot focus", "freaking out", "drowning", "hate", "suicide", "kill"]):
         if is_high:
             prob_title = "Critical emotional distress & cognitive overload"
-            remedy = "Practice 5-4-3-2-1 Sensory Grounding: name 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you taste. Call Tele-MANAS (14416) or campus support if distress persists."
-            solution = "Treat today as an emotional recovery day. Postpone all non-critical evaluations and meet with a campus wellbeing counselor."
-            exercise = "5-4-3-2-1 Grounding & Acute Crisis Outreach"
+            remedy = "Practice 5-4-3-2-1 Sensory Grounding: name 5 things you see, 4 you touch, 3 you hear, 2 you smell, 1 you taste. Put on an upbeat Spotify playlist to shift your mental state."
+            solution = "Treat today as an emotional recovery day. Listen to your favorite fun music on Spotify for dopamine release, postpone non-critical evaluations, and meet with a campus wellbeing counselor."
+            exercise = "5-4-3-2-1 Grounding & Spotify Mood Booster"
         elif is_moderate:
             prob_title = "Heightened mental worry & emotional strain"
             remedy = "Take 3 deep physiological sighs (two quick inhales through the nose, one long slow exhale through the mouth)."
@@ -417,9 +422,9 @@ def generate_synced_problems(journal_text: str, mood_score: int, stress_score: i
     if any(w in text_lower for w in ["lonely", "alone", "isolate", "friends", "roommate", "family", "left out", "nobody", "talk to", "fight", "argument", "relationship", "parents"]):
         if is_high:
             prob_title = "Acute social isolation & feeling unsupported"
-            remedy = "Reach out immediately to one trusted person (family member, friend, peer mentor, or campus RA) and let them know you need company or a listening ear."
-            solution = "Schedule an in-person check-in with a campus peer counselor or resident director. You do not have to carry this distress alone."
-            exercise = "Emergency Social Connection & Guided Peer Support"
+            remedy = "Reach out immediately to one trusted person (friend, family member, peer mentor), listen to uplifting music together on Spotify, and share how you feel."
+            solution = "Schedule an in-person check-in with a campus peer counselor or friend. Play energizing, fun music on Spotify to boost your spirits."
+            exercise = "Emergency Social Connection & Spotify Mood Booster"
         elif is_moderate:
             prob_title = "Feeling disconnected from campus peer community"
             remedy = "Send a quick low-friction text to a classmate or friend: 'Hey, taking a quick break, want to grab tea/coffee?'"
@@ -447,9 +452,9 @@ def generate_synced_problems(journal_text: str, mood_score: int, stress_score: i
                 "problem": "Severe generalized distress & energy depletion",
                 "category": "General",
                 "severity": "Severe",
-                "immediate_remedy": "Step away from all work. Drink a glass of water, sit comfortably, and breathe slowly for 3 minutes.",
-                "actionable_solution": "Prioritize immediate rest, food, hydration, and contact a campus counselor or Tele-MANAS (14416).",
-                "suggested_exercise": "Vagus Nerve Decompression & 4-4-4-4 Box Breathing"
+                "immediate_remedy": "Step away from all work. Put on fun, feel-good music on Spotify, drink cold water, and breathe slowly for 3 minutes.",
+                "actionable_solution": "Prioritize immediate decompression with uplifting Spotify music, food, hydration, and contact a campus counselor or Tele-MANAS (14416).",
+                "suggested_exercise": "Vagus Nerve Decompression & Fun Spotify Music"
             })
         elif is_moderate:
             problems.append({
