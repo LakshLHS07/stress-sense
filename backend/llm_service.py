@@ -75,217 +75,6 @@ _HIGH_RISK_KEYWORDS = [
     "give up on living", "giving up on life", "nothing matters anymore",
 ]
 
-STANDUP_COMEDY_CATALOG = {
-    "HIGH": [
-        {
-            "title": "Friends, Crime, & The Cosmos",
-            "comedian": "Abhishek Upmanyu",
-            "duration": "14 mins",
-            "description": "Hilarious relatable take on student overthinking, roommates, and college existential chaos.",
-            "url": "https://www.youtube.com/watch?v=dtaJzUbQS7E",
-            "thumbnail": "https://img.youtube.com/vi/dtaJzUbQS7E/mqdefault.jpg"
-        },
-        {
-            "title": "When I Met A Delhi Girl / Haq Se Single",
-            "comedian": "Zakir Khan",
-            "duration": "18 mins",
-            "description": "Comforting, laugh-out-loud storytelling about friendships, college expectations, and staying grounded.",
-            "url": "https://www.youtube.com/watch?v=sIl8vsTcQ_k",
-            "thumbnail": "https://img.youtube.com/vi/sIl8vsTcQ_k/mqdefault.jpg"
-        },
-        {
-            "title": "Cheating & Hostel Memories",
-            "comedian": "Anubhav Singh Bassi",
-            "duration": "16 mins",
-            "description": "Unfiltered nostalgic college humor to take your mind completely off pressure.",
-            "url": "https://www.youtube.com/watch?v=Tqsz6FJeyCA",
-            "thumbnail": "https://img.youtube.com/vi/Tqsz6FJeyCA/mqdefault.jpg"
-        },
-        {
-            "title": "Afraid of the Dark & Everyday Chaos",
-            "comedian": "Trevor Noah",
-            "duration": "12 mins",
-            "description": "Witty global comedy delivering genuine smiles and perspective.",
-            "url": "https://www.youtube.com/watch?v=gT8vO76Gk0o",
-            "thumbnail": "https://img.youtube.com/vi/gT8vO76Gk0o/mqdefault.jpg"
-        }
-    ],
-    "MODERATE": [
-        {
-            "title": "School PTM & Everyday Logic",
-            "comedian": "Biswa Kalyan Rath",
-            "duration": "11 mins",
-            "description": "Fast-paced clever observational humor on academic routines.",
-            "url": "https://www.youtube.com/watch?v=dtaJzUbQS7E",
-            "thumbnail": "https://img.youtube.com/vi/dtaJzUbQS7E/mqdefault.jpg"
-        },
-        {
-            "title": "Crowd Work & College Banter",
-            "comedian": "Rahul Subramanian",
-            "duration": "10 mins",
-            "description": "Lighthearted, spontaneous banter perfect for a quick 10-minute study break.",
-            "url": "https://www.youtube.com/watch?v=sIl8vsTcQ_k",
-            "thumbnail": "https://img.youtube.com/vi/sIl8vsTcQ_k/mqdefault.jpg"
-        }
-    ],
-    "LOW": [
-        {
-            "title": "Everyday Observational Standup",
-            "comedian": "Kenny Sebastian",
-            "duration": "9 mins",
-            "description": "Fun, musical comedy to brighten up a productive day.",
-            "url": "https://www.youtube.com/watch?v=Tqsz6FJeyCA",
-            "thumbnail": "https://img.youtube.com/vi/Tqsz6FJeyCA/mqdefault.jpg"
-        }
-    ]
-}
-
-FEEL_GOOD_SONGS_CATALOG = {
-    "HIGH": [
-        {
-            "title": "Ilahi (Yeh Jawaani Hai Deewani)",
-            "artist": "Arijit Singh / Pritam",
-            "vibe": "Uplifting & Free-Spirited",
-            "description": "A breezy anthem celebrating freedom, wandering, and letting go of heavy worries.",
-            "url": "https://www.youtube.com/watch?v=fdubeMFwuGs",
-            "thumbnail": "https://img.youtube.com/vi/fdubeMFwuGs/mqdefault.jpg"
-        },
-        {
-            "title": "Happy",
-            "artist": "Pharrell Williams",
-            "vibe": "Pure Joy & Dopamine",
-            "description": "Universal mood-booster scientifically proven to stimulate upbeat dopamine rhythm.",
-            "url": "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
-            "thumbnail": "https://img.youtube.com/vi/ZbZSe6N_BXs/mqdefault.jpg"
-        },
-        {
-            "title": "Matargashti (Tamasha)",
-            "artist": "Mohit Chauhan / A.R. Rahman",
-            "vibe": "Carefree Fun & Whimsical",
-            "description": "Lighthearted, energetic rhythm that immediately interrupts negative overthinking.",
-            "url": "https://www.youtube.com/watch?v=6vKucgAeF_Q",
-            "thumbnail": "https://img.youtube.com/vi/6vKucgAeF_Q/mqdefault.jpg"
-        },
-        {
-            "title": "Don't Stop Me Now",
-            "artist": "Queen",
-            "vibe": "High Energy & Empowering",
-            "description": "Classic feel-good track voted one of the most uplifting songs in music psychology surveys.",
-            "url": "https://www.youtube.com/watch?v=HgzGwKwLmgM",
-            "thumbnail": "https://img.youtube.com/vi/HgzGwKwLmgM/mqdefault.jpg"
-        },
-        {
-            "title": "Can't Stop the Feeling!",
-            "artist": "Justin Timberlake",
-            "vibe": "Groovy & Mood-Lifting",
-            "description": "Catchy pop melody to loosen physical tension and promote positive movement.",
-            "url": "https://www.youtube.com/watch?v=ru0K8uYEZWw",
-            "thumbnail": "https://img.youtube.com/vi/ru0K8uYEZWw/mqdefault.jpg"
-        }
-    ],
-    "MODERATE": [
-        {
-            "title": "Budhu Sa Mann (Kapoor & Sons)",
-            "artist": "Armaan Malik / Amaal Mallik",
-            "vibe": "Gentle & Cheerful",
-            "description": "Relaxing, sweet melody to calm an active, racing study mind.",
-            "url": "https://www.youtube.com/watch?v=k4iFcxp_2kU",
-            "thumbnail": "https://img.youtube.com/vi/k4iFcxp_2kU/mqdefault.jpg"
-        },
-        {
-            "title": "Sunday Best",
-            "artist": "Surfaces",
-            "vibe": "Smooth & Optimistic",
-            "description": "Sunny acoustic pop reminder that setbacks are temporary.",
-            "url": "https://www.youtube.com/watch?v=_83K3Qe44MT",
-            "thumbnail": "https://img.youtube.com/vi/_83K3Qe44MT/mqdefault.jpg"
-        }
-    ],
-    "LOW": [
-        {
-            "title": "Zinda (Bhaag Milkha Bhaag)",
-            "artist": "Siddharth Mahadevan",
-            "vibe": "High Octane & Motivating",
-            "description": "Empowering rock track to fuel your momentum and focus.",
-            "url": "https://www.youtube.com/watch?v=k4iFcxp_2kU",
-            "thumbnail": "https://img.youtube.com/vi/k4iFcxp_2kU/mqdefault.jpg"
-        }
-    ]
-}
-
-
-def get_mood_uplift_media(stress_score: int, risk_level: str) -> dict:
-    """Provides differentiated remedies, sleep prescription, box breathing triggers, standup comedy, and feel-good songs based on stress score."""
-    is_high = (stress_score >= 70) or (risk_level == "HIGH")
-    is_moderate = (not is_high) and ((stress_score >= 45) or (risk_level == "MEDIUM"))
-    
-    tier = "HIGH" if is_high else ("MODERATE" if is_moderate else "LOW")
-    
-    standup = STANDUP_COMEDY_CATALOG.get(tier, STANDUP_COMEDY_CATALOG["HIGH"])
-    songs = FEEL_GOOD_SONGS_CATALOG.get(tier, FEEL_GOOD_SONGS_CATALOG["HIGH"])
-    
-    if is_high:
-        sleep_rec = {
-            "is_critical": True,
-            "headline": "🛌 Prescribed Rest Protocol: Mandatory 8-Hour Recovery Sleep",
-            "badge": "⚡ High Stress Recovery Active",
-            "narrative": "When stress index crosses 70, cognitive retention degrades and physical nervous system tension peaks. The single highest-ROI reset intervention is restorative slow-wave sleep.",
-            "actionable_tips": [
-                "Digital Sunset: Power down laptop, phone, and study screens 30 minutes before bed.",
-                "Target an 8-hour sleep block tonight — studying in acute distress yields 50% lower retention.",
-                "Cool, dark room (68°F / 20°C) with no notifications to restore deep slow-wave sleep.",
-                "Avoid caffeine, energy drinks, and heavy late meals after 3:00 PM."
-            ]
-        }
-        breathing_rec = {
-            "auto_trigger": True,
-            "headline": "🫁 Immediate Vagus Nerve Reset: Box Breathing (4-4-4-4)",
-            "instruction": "Initiating 4-4-4-4 Box Breathing immediately slows down rapid heart rate, lowers acute cortisol, and switches the body out of fight-or-flight panic.",
-            "cycles": 4
-        }
-    elif is_moderate:
-        sleep_rec = {
-            "is_critical": False,
-            "headline": "🌙 Sleep Hygiene Reminder: Protect 7.5h Baseline",
-            "badge": "⚠️ Pacing & Sleep Buffer",
-            "narrative": "Moderate stress is manageable when your sleep baseline is steady. Protect your nighttime sleep window to prevent fatigue compounding.",
-            "actionable_tips": [
-                "Keep a consistent bedtime tonight within a 30-minute window.",
-                "Take a 10-minute screen break between study sessions.",
-                "End study sessions by 10:30 PM to allow the brain to decompress."
-            ]
-        }
-        breathing_rec = {
-            "auto_trigger": False,
-            "headline": "🫁 2-Minute Calming Reset: Box Breathing",
-            "instruction": "Use Box Breathing for 2 minutes whenever you feel concentration slipping or frustration building.",
-            "cycles": 3
-        }
-    else:
-        sleep_rec = {
-            "is_critical": False,
-            "headline": "✨ Optimal Rest Balance: Sustaining Healthy Routine",
-            "badge": "🛡️ Balanced Sleep Buffer",
-            "narrative": "Your current stress level is well within healthy bounds. Maintaining your current sleep rhythm keeps cognitive memory sharp.",
-            "actionable_tips": [
-                "Maintain your regular waking and sleep schedule.",
-                "Hydrate and celebrate your daily accomplishments."
-            ]
-        }
-        breathing_rec = {
-            "auto_trigger": False,
-            "headline": "🧘 Mindful Breath Pacing",
-            "instruction": "Quick 60-second breathing check-in to preserve calm focus and energy.",
-            "cycles": 2
-        }
-        
-    return {
-        "standup_comedy_videos": standup,
-        "feel_good_songs": songs,
-        "sleep_recommendation": sleep_rec,
-        "box_breathing_suggestion": breathing_rec,
-    }
-
 SYSTEM_PROMPT = """You are an empathetic, clinical triage assistant embedded in a student mental health check-in app.
 You are NOT a therapist and you do not provide medical diagnoses.
 Your job is to read a student's short journal entry and a 1-5 mood score (1=crisis/worst, 5=great/thriving),
@@ -334,14 +123,10 @@ def _keyword_screen(journal_text: str) -> bool:
 
 def _safe_default(flagged: bool) -> dict:
     """Fail-safe fallback used whenever the LLM call fails or returns malformed JSON."""
-    stress_score = 90 if flagged else 65
-    risk_level = "HIGH" if flagged else "MEDIUM"
-    uplift = get_mood_uplift_media(stress_score, risk_level)
-    
     return {
-        "risk_level": risk_level,
+        "risk_level": "HIGH" if flagged else "MEDIUM",
         "stress_assessment": {
-            "stress_score": stress_score,
+            "stress_score": 90 if flagged else 65,
             "stress_level": "Critical / Severe" if flagged else "Moderate Stress",
             "primary_stressors": ["Acute Distress" if flagged else "Academic & Emotional Strain"]
         },
@@ -359,10 +144,6 @@ def _safe_default(flagged: bool) -> dict:
             }
         ],
         "coping_resources": CRISIS_RESOURCES if flagged else GENERAL_RESOURCES,
-        "standup_comedy_videos": uplift["standup_comedy_videos"],
-        "feel_good_songs": uplift["feel_good_songs"],
-        "sleep_recommendation": uplift["sleep_recommendation"],
-        "box_breathing_suggestion": uplift["box_breathing_suggestion"],
     }
 
 
@@ -748,8 +529,6 @@ def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list]
         sentiment = f"Student reflects balanced emotional equilibrium with active coping mechanisms."
         action = "Continue current regular reflection habits and healthy boundaries."
 
-    uplift = get_mood_uplift_media(stress_score, risk_level)
-
     return {
         "risk_level": risk_level,
         "stress_assessment": {
@@ -763,10 +542,6 @@ def _call_mock(journal_text: str, mood_score: int, sleep_records: Optional[list]
         "identified_problems": identified_problems,
         "coping_resources": resources,
         "sleep_insights": sleep_insights,
-        "standup_comedy_videos": uplift["standup_comedy_videos"],
-        "feel_good_songs": uplift["feel_good_songs"],
-        "sleep_recommendation": uplift["sleep_recommendation"],
-        "box_breathing_suggestion": uplift["box_breathing_suggestion"],
     }
 
 
@@ -832,20 +607,6 @@ def analyze_with_llm(journal_text: str, mood_score: int, sleep_records: Optional
         for res in CRISIS_RESOURCES:
             if res["title"] not in existing_titles:
                 result.setdefault("coping_resources", []).append(res)
-
-    # Always attach differentiated media, sleep recommendations, and box breathing data
-    curr_score = result.get("stress_assessment", {}).get("stress_score", 50)
-    curr_risk = result.get("risk_level", "LOW")
-    uplift = get_mood_uplift_media(curr_score, curr_risk)
-
-    if not result.get("standup_comedy_videos"):
-        result["standup_comedy_videos"] = uplift["standup_comedy_videos"]
-    if not result.get("feel_good_songs"):
-        result["feel_good_songs"] = uplift["feel_good_songs"]
-    if not result.get("sleep_recommendation"):
-        result["sleep_recommendation"] = uplift["sleep_recommendation"]
-    if not result.get("box_breathing_suggestion"):
-        result["box_breathing_suggestion"] = uplift["box_breathing_suggestion"]
 
     return result
 

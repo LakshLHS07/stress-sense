@@ -65,10 +65,6 @@ class AnalysisResponse(BaseModel):
     identified_problems: List[ProblemRemedy] = Field(default_factory=list)
     coping_resources: List[Dict] = Field(default_factory=list)
     sleep_insights: Optional[SleepInsights] = None
-    standup_comedy_videos: Optional[List[Dict]] = Field(default_factory=list)
-    feel_good_songs: Optional[List[Dict]] = Field(default_factory=list)
-    sleep_recommendation: Optional[Dict] = None
-    box_breathing_suggestion: Optional[Dict] = None
 
 
 class HistoryEntry(BaseModel):
